@@ -19,16 +19,35 @@ pub enum Base {
     A,
     G,
 }
-    
+
+impl Base {
+    pub fn to_char(&self) -> char {
+        match *self {
+            Base::C => 'C',
+            Base::T => 'T',
+            Base::A => 'A',
+            Base::G => 'G',
+        }
+    }
+}
+
 // good practice to implement this anyway
 // println!("{}", base);
 impl fmt::Display for Base {
-    fn fmt(&self, b: &mut fmt::Formatter) -> fmt::Result {
-        match *self {
-            Base::C => write!(b, "C"),
-            Base::T => write!(b, "T"),
-            Base::A => write!(b, "A"),
-            Base::G => write!(b, "G"),
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+            write!(f, "{}", self.to_char())
+    }
+}
+
+impl Base {
+    pub fn from_char(c: char) -> Base {
+        use self::Base::*;
+        match c {
+            'C' => C,
+            'T' => T,
+            'A' => A,
+            'G' => G,
+            x => panic!("invalid character for base ({})", x),
         }
     }
 }
