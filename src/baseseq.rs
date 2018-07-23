@@ -9,8 +9,8 @@ pub struct BaseSeq {
 }
 
 impl BaseSeq {
-    // pub fn new(s: String) -> BaseSeq {
-    pub fn from_string(s: &str) -> BaseSeq {
+    pub fn new(s: &str) -> BaseSeq {
+    // pub fn from_string(s: &str) -> BaseSeq {
         BaseSeq {
             bs: s.chars().map(|c| Base::from_char(c)).collect()
         }
