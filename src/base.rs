@@ -12,12 +12,16 @@ use self::rand::{
 // using DNA base pairs AGCT. T and C are always interchangeable in the last base of a codon.
 // derive Debug for easy printing (otherwise would have to implement std::fmt::Display)
 // can print like this: println!("{:?}", base);
-#[derive(Debug)]
+#[derive(Debug, Copy)]
 pub enum Base {
     C,
     T,
     A,
     G,
+}
+
+impl Clone for Base {
+    fn clone(&self) -> Base { *self }
 }
 
 impl Base {

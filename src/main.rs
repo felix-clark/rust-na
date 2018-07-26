@@ -1,5 +1,5 @@
 // -*- compile-command: "cargo build" -*-
-mod base;// not clear -- are these being imported?
+mod base; // not clear -- are these being imported?
 mod baseseq;
 mod aminoacid;
 

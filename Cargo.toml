@@ -1,5 +1,5 @@
 [package]
-name = "gene"
+name = "rustna"
 version = "0.1.0"
 authors = ["Felix Clark <mfclark3690@gmail.com>"]
 

@@ -26,13 +26,6 @@ version = "0.3.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 
 [[package]]
-name = "gene"
-version = "0.1.0"
-dependencies = [
- "rand 0.5.4 (registry+https://github.com/rust-lang/crates.io-index)",
-]
-
-[[package]]
 name = "libc"
 version = "0.2.42"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -53,6 +46,13 @@ dependencies = [
 name = "rand_core"
 version = "0.2.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
+
+[[package]]
+name = "rustna"
+version = "0.1.0"
+dependencies = [
+ "rand 0.5.4 (registry+https://github.com/rust-lang/crates.io-index)",
+]
 
 [[package]]
 name = "winapi"
