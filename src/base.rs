@@ -10,7 +10,7 @@ use self::rand::{
 // mod base { // goes into the base namespace by default, just from the filename.
 
 // using DNA base pairs AGCT. T and C are always interchangeable in the last base of a codon.
-#[derive(Clone,Copy)]
+#[derive(Debug,Clone,Copy)]
 pub enum Base {
     C,
     T,

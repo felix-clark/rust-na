@@ -5,7 +5,7 @@ use std::fmt;
 use std::ops::Add;
 
 // define a container for lists of bases.
-#[derive(Clone)]
+#[derive(Clone,Default)]
 pub struct BaseSeq {
     bs: Vec<Base>,
     // or should we use a VecDeque, or linked list?
@@ -24,22 +24,15 @@ impl BaseSeq {
 
 }
 
-// impl Clone for BaseSeq {
-//     fn clone(&self) -> BaseSeq { bs: (*const self).bs.clone() }
-// }
-
 // the reference needs lifetime annotation
 impl<'a> TryFrom<&'a str> for BaseSeq {
     type Error = ParseError; // from base
     fn try_from(s: &'a str) -> Result<Self, Self::Error> { // this lifetime specifier doesn't seem necessary
         // BaseSeq {bs: s.chars().map(|c| Base::try_from(c).expect("failed to interpret base sequence from string")).collect()}
         // Result implements FromIterator, so we can do this instead:
-        use std::convert::TryFrom;
-        let tryread = s.chars().map(|c| Base::try_from(c)).collect();
-        match tryread {
-            Ok(good) => Ok(BaseSeq{bs: good}), // is there a better idomatic way to implement this pattern?
-            Err(bad) => Err(bad),
-        }
+        // we can use the ? operator but collect() needs this awkward "turbofish" syntax:
+        let tryread = s.chars().map(Base::try_from).collect::<Result<_,_>>()?;
+        Ok(BaseSeq{bs: tryread})
     }
 }
 
@@ -47,9 +40,7 @@ impl TryFrom<String> for BaseSeq {
     // this implies TryInto
     type Error = ParseError;
     fn try_from(s: String) -> Result<Self, Self::Error> {
-        use std::convert::TryFrom;
-        // we can use the ? operator but collect() needs this awkward "turbofish" syntax:
-        let tryread = s.chars().map(|c| Base::try_from(c)).collect::<Result<_,_>>()?;
+        let tryread = s.chars().map(Base::try_from).collect::<Result<_,_>>()?;
         Ok(BaseSeq{bs: tryread})
     }
 }

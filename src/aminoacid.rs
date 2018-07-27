@@ -1,8 +1,9 @@
 // mod base;
 
 use base::Base;
+use std::convert::From;
 
-#[derive(Debug)]
+#[derive(Debug,Clone)]
 pub enum AminoAcid {
     Ala,
     Arg,
@@ -28,7 +29,38 @@ pub enum AminoAcid {
     // START, // same as Met; we don't actually need this?
 }
 
-pub fn is_start_codon(a: Base, b: Base, c: Base) -> bool {
+impl<'a> From<&'a AminoAcid> for char {
+    fn from(a: &AminoAcid) -> char {
+        use self::AminoAcid::*;
+        match a {
+            Ala => 'A',
+            Arg => 'R',
+            Asn => 'N',
+            Asp => 'D',
+            Cys => 'C',
+            Gln => 'Q',
+            Glu => 'E',
+            Gly => 'G',
+            His => 'H',
+            Ile => 'I',
+            Leu => 'L',
+            Lys => 'K',
+            Met => 'M',
+            Phe => 'F',
+            Pro => 'P',
+            Ser => 'S',
+            Thr => 'T',
+            Trp => 'W',
+            Tyr => 'Y',
+            Val => 'V',
+            STOP => 'X', // not a real symbol. use None, if we roll w/ Option?
+        }
+    }
+}
+
+// these are just helper functions, make them pub once we use them
+
+fn is_start_codon(a: Base, b: Base, c: Base) -> bool {
     use base::Base::*;
     match (a,b,c) {
         (A,T,G) => true,
@@ -36,7 +68,7 @@ pub fn is_start_codon(a: Base, b: Base, c: Base) -> bool {
     }
 }
     
-pub fn amino_code(a: Base, b: Base, c: Base) -> AminoAcid {
+fn amino_code(a: Base, b: Base, c: Base) -> AminoAcid {
     // use Base::G;
     use base::Base::*;
     use self::AminoAcid::*;

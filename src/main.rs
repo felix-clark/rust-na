@@ -5,13 +5,15 @@
 mod base; // not clear -- are these being imported?
 mod baseseq;
 mod aminoacid;
+mod protein;
 
 use base::Base;
 use baseseq::BaseSeq;
 
 extern crate rand;
 use rand::Rng;
-use std::convert::{From, TryFrom};
+// use std::convert::{From, TryFrom};
+use std::convert::TryFrom;
 
 fn main() {
     println!("Adenine: {}", Base::A);
@@ -27,8 +29,11 @@ fn main() {
     let bsum = b1.clone() + b2.clone();
     println!("added sequence: {} + {} = {}", b1, b2, bsum);
     
-    // let's implement something like this:
+    // let's implement something like this: (needs iterator for BaseSeq?)
     // println!("complement:\t{}", bs.iter().map(|b| Base::complement(b)).collect());
 
+    let prots = protein::sequence(bsum);
+    println!("sequenced:");
+    prots.iter().for_each(|p| println!("  {}", p) );
     
 }
