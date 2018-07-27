@@ -1,10 +1,11 @@
 use base::*;
 
-use std::convert::From;
+use std::convert::{From, TryFrom};
 use std::fmt;
 use std::ops::Add;
 
 // define a container for lists of bases.
+#[derive(Clone)]
 pub struct BaseSeq {
     bs: Vec<Base>,
     // or should we use a VecDeque, or linked list?
@@ -15,13 +16,6 @@ impl BaseSeq {
         BaseSeq {bs: Vec::new(),}
     }
 
-    // // we'll actually probably want to move to implement From<string>
-    // pub fn from_string(s: &str) -> BaseSeq {
-    //     BaseSeq {
-    //         bs: s.chars().map(|c| Base::from_char(c)).collect()
-    //     }
-    // }
-
     // moves all elements of other into self, leaving other empty
     pub fn append(&mut self, other: &mut BaseSeq) {
         // uses the built-in Vec::append(), which should hopefully pre-allocate for the length of other.bs
@@ -30,34 +24,55 @@ impl BaseSeq {
 
 }
 
+// impl Clone for BaseSeq {
+//     fn clone(&self) -> BaseSeq { bs: (*const self).bs.clone() }
+// }
+
 // the reference needs lifetime annotation
-impl<'a> From<&'a str> for BaseSeq {
-    // From<> shouldn't fail. we should use TryFrom, or Option<T> / Result<T, E>
-    fn from(s: &'a str) -> BaseSeq {
+impl<'a> TryFrom<&'a str> for BaseSeq {
+    type Error = ParseError; // from base
+    fn try_from(s: &'a str) -> Result<Self, Self::Error> { // this lifetime specifier doesn't seem necessary
+        // BaseSeq {bs: s.chars().map(|c| Base::try_from(c).expect("failed to interpret base sequence from string")).collect()}
+        // Result implements FromIterator, so we can do this instead:
         use std::convert::TryFrom;
-        BaseSeq {
-            // we'll want to return a Result<BaseSeq, Base::ParseError> instead of just calling unwrap() (which panics on an error)
-            bs: s.chars().map(|c: char| Base::try_from(c).unwrap()).collect()
+        let tryread = s.chars().map(|c| Base::try_from(c)).collect();
+        match tryread {
+            Ok(good) => Ok(BaseSeq{bs: good}), // is there a better idomatic way to implement this pattern?
+            Err(bad) => Err(bad),
         }
     }
 }
 
-impl From<String> for BaseSeq {
-    // again, should replace w/ TryFrom etc.
-    // this is supposed to imply Into
-    fn from(s: String) -> BaseSeq {
+impl TryFrom<String> for BaseSeq {
+    // this implies TryInto
+    type Error = ParseError;
+    fn try_from(s: String) -> Result<Self, Self::Error> {
         use std::convert::TryFrom;
-        // same comment here as above
-        BaseSeq {bs: s.chars().map(|c| Base::try_from(c).unwrap()).collect()}
+        // we can use the ? operator but collect() needs this awkward "turbofish" syntax:
+        let tryread = s.chars().map(|c| Base::try_from(c)).collect::<Result<_,_>>()?;
+        Ok(BaseSeq{bs: tryread})
+    }
+}
+
+impl From<BaseSeq> for String {
+    fn from(bs: BaseSeq) -> String {
+        bs.bs.iter().map(|b| char::from(*b)).collect()
+    }
+}
+
+// we need the reference version to print a string w/out
+impl<'a> From<&'a BaseSeq> for String {
+    fn from(seq: &BaseSeq) -> String {
+        seq.bs.iter().map(|b| char::from(*b)).collect()
     }
 }
 
 impl fmt::Display for BaseSeq {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        // let outstr: String = self.bs.iter().map(|b| (*b).into(): char).collect(); // need #![feature(type_ascription)] for this syntax
         // b has type iter(Base):
-        let outstr: String = self.bs.iter().map(|b| char::from(*b)).collect();
-        write!(f, "{}", outstr)
+        // let outstr: String = self.bs.iter().map(|b| (*b).into(): char).collect(); // need #![feature(type_ascription)] for this syntax
+        // let outstr: String = self.bs.iter().map(|b| char::from(*b)).collect();
+        write!(f, "{}", String::from(self))
     }
 }
 
@@ -68,10 +83,9 @@ impl Add for BaseSeq {
         let cap = self.bs.len() + other.bs.len();
         let mut vb: Vec<Base> = Vec::with_capacity(cap);
         vb = self.bs; // does this render self used up? do we need to clone again?
+        // makes a copy of each element in other; may not be optimal
         vb.extend(other.bs.iter().cloned());
         BaseSeq {
-            // makes a copy of each element in other; may not be optimal
-            // bs: self.bs.extend(other.bs.iter().cloned())
             bs: vb,
         }
         
