@@ -1,5 +1,5 @@
-
 use std::fmt;
+use std::convert::{From, TryFrom};
 
 extern crate rand;
 use self::rand::{
@@ -24,38 +24,72 @@ impl Clone for Base {
     fn clone(&self) -> Base { *self }
 }
 
-impl Base {
-    pub fn to_char(&self) -> char {
+#[derive(Debug)]
+pub enum ParseError {
+    InvalidBase(char),
+}
+
+impl TryFrom<char> for Base {
+    type Error = self::ParseError;
+    fn try_from(c: char) -> Result<Self, Self::Error> {
         use self::Base::*;
-        match *self {
+        match c {
+            'C' => Ok(C),
+            'T' => Ok(T),
+            'A' => Ok(A),
+            'G' => Ok(G),
+            x => Err(ParseError::InvalidBase(x)),
+        }
+
+    }
+}
+
+// could instead implement Into<char> for Base, but this is more idomatic
+impl From<Base> for char {
+    fn from(b: Base) -> char {
+        use self::Base::*;
+        match b {
             C => 'C',
             T => 'T',
             A => 'A',
             G => 'G',
-        }
+        }        
     }
 }
+
+// impl Base {
+//     pub fn to_char(&self) -> char {
+//         use self::Base::*;
+//         match *self {
+//             C => 'C',
+//             T => 'T',
+//             A => 'A',
+//             G => 'G',
+//         }
+//     }
+// }
 
 // good practice to implement this anyway
 // println!("{}", base);
 impl fmt::Display for Base {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-            write!(f, "{}", self.to_char())
+            // write!(f, "{}", self.into())
+            write!(f, "{}", Base::from(*self))
     }
 }
 
-impl Base {
-    pub fn from_char(c: char) -> Base {
-        use self::Base::*;
-        match c {
-            'C' => C,
-            'T' => T,
-            'A' => A,
-            'G' => G,
-            x => panic!("invalid character for base ({})", x),
-        }
-    }
-}
+// impl Base {
+//     pub fn from_char(c: char) -> Base {
+//         use self::Base::*;
+//         match c {
+//             'C' => C,
+//             'T' => T,
+//             'A' => A,
+//             'G' => G,
+//             x => panic!("invalid character for base ({})", x),
+//         }
+//     }
+// }
 
 impl Distribution<Base> for Standard {
     fn sample<R: Rng + ?Sized>(&self, rng: &mut R) -> Base {
@@ -70,6 +104,7 @@ impl Distribution<Base> for Standard {
     }
 }
 
+// should this be implemented as base.complement() ?
 fn complement(base: Base) -> Base{
     use self::Base::*;
     match base {
@@ -79,5 +114,5 @@ fn complement(base: Base) -> Base{
         G => C,
     }
 }
-    
+
 // } // mod base

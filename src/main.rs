@@ -1,4 +1,7 @@
 // -*- compile-command: "cargo build" -*-
+// add this to lib in case we export later, but put it in main so we can use it here.
+#![feature(try_from)]
+
 mod base; // not clear -- are these being imported?
 mod baseseq;
 mod aminoacid;
@@ -17,7 +20,7 @@ fn main() {
     println!("random: {}", rndbase);
 
     // let bs = BaseSeq::from_string("ATCGCAT");
-    let bs = BaseSeq::new("ATCGCAT");
+    let bs = BaseSeq::from("ATCGCAT");
     println!("sequence:\t{}", bs);
     // let's implement something like this:
     // println!("complement:\t{}", bs.iter().map(|b| Base::complement(b)).collect());
