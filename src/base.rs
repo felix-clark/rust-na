@@ -26,11 +26,12 @@ impl Clone for Base {
 
 impl Base {
     pub fn to_char(&self) -> char {
+        use self::Base::*;
         match *self {
-            Base::C => 'C',
-            Base::T => 'T',
-            Base::A => 'A',
-            Base::G => 'G',
+            C => 'C',
+            T => 'T',
+            A => 'A',
+            G => 'G',
         }
     }
 }
