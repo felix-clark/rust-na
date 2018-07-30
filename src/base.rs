@@ -10,7 +10,7 @@ use self::rand::{
 // mod base { // goes into the base namespace by default, just from the filename.
 
 // using DNA base pairs AGCT. T and C are always interchangeable in the last base of a codon.
-#[derive(Debug,Clone,Copy)]
+#[derive(Clone,Copy,Debug,PartialEq)]
 pub enum Base {
     C,
     T,
@@ -75,7 +75,7 @@ impl Distribution<Base> for Standard {
 }
 
 // should this be implemented as base.complement() ?
-fn complement(base: Base) -> Base{
+pub fn complement(base: Base) -> Base{
     use self::Base::*;
     match base {
         C => G,

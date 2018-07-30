@@ -3,9 +3,11 @@ use base::*;
 use std::convert::{From, TryFrom};
 use std::fmt;
 use std::ops::Add;
+use std::iter::Iterator;
 
 // define a container for lists of bases.
-#[derive(Clone,Default)]
+// derive Debug so we can use assertions in test
+#[derive(Clone,Default,Debug,PartialEq)]
 pub struct BaseSeq {
     bs: Vec<Base>,
     // or should we use a VecDeque, or linked list?
@@ -27,7 +29,7 @@ impl BaseSeq {
 // the reference needs lifetime annotation
 impl<'a> TryFrom<&'a str> for BaseSeq {
     type Error = ParseError; // from base
-    fn try_from(s: &'a str) -> Result<Self, Self::Error> { // this lifetime specifier doesn't seem necessary
+    fn try_from(s: &str) -> Result<Self, Self::Error> { // this lifetime specifier doesn't seem necessary
         // BaseSeq {bs: s.chars().map(|c| Base::try_from(c).expect("failed to interpret base sequence from string")).collect()}
         // Result implements FromIterator, so we can do this instead:
         // we can use the ? operator but collect() needs this awkward "turbofish" syntax:
@@ -66,6 +68,15 @@ impl fmt::Display for BaseSeq {
         write!(f, "{}", String::from(self))
     }
 }
+
+// TODO: actually, we might need to define a BaseIter that implements Iterator.
+// define a separate iterator (?) like CodonIter to read 3 at a time, using Chunks
+// impl Iterator for BaseSeq {
+//     type Item = Base;
+//     fn next(&mut self) -> Option<Self::Item> {
+//         self.bs.next()
+//     }
+// }
 
 // creates a copy, so probably isn't optimal or even as good as append()
 impl Add for BaseSeq {

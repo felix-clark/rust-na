@@ -60,7 +60,7 @@ impl<'a> From<&'a AminoAcid> for char {
 
 // these are just helper functions, make them pub once we use them
 
-fn is_start_codon(a: Base, b: Base, c: Base) -> bool {
+pub fn is_start_codon(a: Base, b: Base, c: Base) -> bool {
     use base::Base::*;
     match (a,b,c) {
         (A,T,G) => true,
