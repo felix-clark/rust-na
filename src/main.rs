@@ -9,6 +9,9 @@ mod protein;
 
 use base::Base;
 use baseseq::BaseSeq;
+use protein::Protein;
+
+use std::env;
 
 extern crate rand;
 use rand::Rng;
@@ -37,6 +40,17 @@ fn main() {
 
     let prots = protein::sequence(bsum);
     println!("sequenced:");
+    prots.iter().for_each(|p| println!("  {}", p) );
+
+    let mut inputs: Vec<String> = env::args().collect();
+    inputs.remove(0); // the first element is the binary
+    // println!("input sequences:");
+    // inputs.iter().for_each(|x| println!(" input: {}", x));
+    // todo: replace "unwrap" w/ error message
+    // let baseseqs: Vec<BaseSeq> = inputs.iter().map(|s: &String| BaseSeq::try_from(s.as_str())).collect::<Result<_,_>>().expect("parse error on input");
+    // into_iter takes ownership
+    let baseseqs: Vec<BaseSeq> = inputs.into_iter().map(BaseSeq::try_from).collect::<Result<_,_>>().expect("parse error on input");
+    let prots: Vec<Protein> = baseseqs.into_iter().map(protein::sequence).collect::<Vec<Vec<_>>>().concat();
     prots.iter().for_each(|p| println!("  {}", p) );
     
 }
