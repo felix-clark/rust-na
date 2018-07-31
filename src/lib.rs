@@ -26,8 +26,8 @@ mod tests {
     #[test]
     fn start() {
         use aminoacid::is_start_codon;
-        assert!(is_start_codon(A,T,G));
-        assert!(!is_start_codon(T,A,C));
+        assert!(is_start_codon((A,T,G)));
+        assert!(!is_start_codon((T,A,C)));
     }
 
     #[test]
@@ -39,6 +39,11 @@ mod tests {
                    BaseSeq::try_from(s2).unwrap());
     }
 
+    #[test]
+    fn valid_seq() {
+        BaseSeq::try_from("GATTACA").expect("this should be valid");
+    }
+    
     #[test]
     #[should_panic]
     fn invalid_seq() {

@@ -18,33 +18,31 @@ use std::process;
 
 extern crate rand;
 use rand::Rng;
-// use std::convert::{From, TryFrom};
 use std::convert::TryFrom;
 
 fn main() {
+    // todo: pretty much all of this code can be eliminated, once we finish the translation function
     use Base::*;
     println!("Adenine: {}", A);
     println!("C(A): {}", base::complement(A));
-    println!("ATG is start codon: {}", aminoacid::is_start_codon(A,T,G));
+    println!("ATG is start codon: {}", aminoacid::is_start_codon((A,T,G)));
     
     let mut rng = rand::thread_rng();
     let rndbase: Base = rng.gen();
     println!("random: {}", rndbase);
 
-    let bs: BaseSeq = BaseSeq::try_from("ATCGCAT").expect("this should be a valid sequence");
-    println!("sequence:\t{}", bs);
-
-    let b1 = BaseSeq::try_from("AGTCAGTCTA").expect("this should be valid");
-    let b2 = BaseSeq::try_from("TGCAGCTAGC").expect("this should be valid");
-    let bsum = b1.clone() + b2.clone();
-    println!("added sequence: {} + {} = {}", b1, b2, bsum);
+    // let b1 = BaseSeq::try_from("AGTCAGTCTA").expect("this should be valid");
+    // let b2 = BaseSeq::try_from("TGCAGCTAGC").expect("this should be valid");
+    // let bsum = b1.clone() + b2.clone();
+    // println!("added sequence: {} + {} = {}", b1, b2, bsum);
     
     // let's implement something like this: (needs iterator for BaseSeq?)
+    // need 3 kinds of iterators, w/ the default one provided by iter() to simply loop over 1 base at a time.
     // println!("complement:\t{}", bs.iter().map(|b| Base::complement(b)).collect());
 
-    let prots = protein::sequence(bsum);
-    println!("sequenced:");
-    prots.iter().for_each(|p| println!("  {}", p) );
+    // let prots = protein::translate(bsum);
+    // println!("translated:");
+    // prots.iter().for_each(|p| println!("  {}", p) );
 
     // todo: better error description. should be able to catch the error and print it instead of catching w/ expect?
     // let inputs: Vec<String> = parse_args(env::args().collect()).expect("io error");
@@ -59,7 +57,7 @@ fn main() {
         eprintln!("Problem parsing string as base sequence: {:?}", err);
         process::exit(1);
     });
-    let prots: Vec<Protein> = baseseqs.into_iter().map(protein::sequence).collect::<Vec<Vec<_>>>().concat();
+    let prots: Vec<Protein> = baseseqs.into_iter().map(protein::translate).collect::<Vec<Vec<_>>>().concat();
     prots.iter().for_each(|p| println!("  {}", p) );
     
 }

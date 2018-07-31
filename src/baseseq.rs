@@ -3,13 +3,15 @@ use base::*;
 use std::convert::{From, TryFrom};
 use std::fmt;
 use std::ops::Add;
+use std::slice::Iter;
 use std::iter::Iterator;
 
 // define a container for lists of bases.
 // derive Debug so we can use assertions in test
 #[derive(Clone,Default,Debug,PartialEq)]
 pub struct BaseSeq {
-    bs: Vec<Base>,
+    // TODO: eventually this should be made not-public, but for now...
+    pub bs: Vec<Base>,
     // or should we use a VecDeque, or linked list?
 }
 
@@ -18,6 +20,11 @@ impl BaseSeq {
         BaseSeq {bs: Vec::new(),}
     }
 
+    // allows simple iteration base-by-base
+    pub fn iter(&self) -> Iter<Base> {
+        self.bs.iter()
+    }
+    
     // moves all elements of other into self, leaving other empty
     pub fn append(&mut self, other: &mut BaseSeq) {
         // uses the built-in Vec::append(), which should hopefully pre-allocate for the length of other.bs
@@ -69,6 +76,9 @@ impl fmt::Display for BaseSeq {
     }
 }
 
+// implement iterators over the sequence
+// all private?
+// may don't need to manually to it; just use windows() and chunks_exact()
 // TODO: actually, we might need to define a BaseIter that implements Iterator.
 // define a separate iterator (?) like CodonIter to read 3 at a time, using Chunks
 // impl Iterator for BaseSeq {

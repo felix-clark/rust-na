@@ -18,6 +18,8 @@ impl fmt::Display for Protein {
 }
 
 // will read through a base sequence and generate proteins using the canonical DNA codon code
-pub fn sequence(bs: BaseSeq) -> Vec<Protein> {
-    Vec::new() //Protein::default()
+pub fn translate(seq: BaseSeq) -> Vec<Protein> {
+    // implement Slice for BaseSeq (?)
+    let iss = is_start_codon(seq.bs.windows(3));
+    Vec::new() //Protein::default()    
 }
