@@ -4,7 +4,7 @@ use std::fmt;
 use std::iter::FromIterator;
 
 // a protein is a string of amino acids.
-#[derive(Clone,Default)]
+#[derive(Clone,Debug)]
 pub struct Protein {
     aas: Vec<AminoAcid>,
 }
