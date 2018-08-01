@@ -25,7 +25,7 @@ fn main() {
     use Base::*;
     println!("Adenine: {}", A);
     println!("C(A): {}", base::complement(A));
-    println!("ATG is start codon: {}", aminoacid::is_start_codon((A,T,G)));
+    println!("ATG is start codon: {}", aminoacid::is_start_codon(&[A,T,G]));
     
     let mut rng = rand::thread_rng();
     let rndbase: Base = rng.gen();

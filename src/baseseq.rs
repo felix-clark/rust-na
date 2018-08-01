@@ -4,7 +4,7 @@ use std::convert::{From, TryFrom};
 use std::fmt;
 use std::ops::Add;
 use std::slice::Iter;
-use std::iter::Iterator;
+use std::iter::{Iterator, FromIterator};
 
 // define a container for lists of bases.
 // derive Debug so we can use assertions in test
@@ -23,6 +23,10 @@ impl BaseSeq {
     // allows simple iteration base-by-base
     pub fn iter(&self) -> Iter<Base> {
         self.bs.iter()
+    }
+
+    pub fn push(&mut self, b: Base) {
+        self.bs.push(b);
     }
     
     // moves all elements of other into self, leaving other empty
@@ -73,6 +77,16 @@ impl fmt::Display for BaseSeq {
         // let outstr: String = self.bs.iter().map(|b| (*b).into(): char).collect(); // need #![feature(type_ascription)] for this syntax
         // let outstr: String = self.bs.iter().map(|b| char::from(*b)).collect();
         write!(f, "{}", String::from(self))
+    }
+}
+
+impl FromIterator<Base> for BaseSeq {
+    fn from_iter<I: IntoIterator<Item=Base>>(iter: I) -> Self {
+        let mut bs = BaseSeq::new();
+        for i in iter {
+            bs.push(i);
+        }
+        bs
     }
 }
 

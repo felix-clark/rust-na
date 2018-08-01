@@ -26,8 +26,14 @@ mod tests {
     #[test]
     fn start() {
         use aminoacid::is_start_codon;
-        assert!(is_start_codon((A,T,G)));
-        assert!(!is_start_codon((T,A,C)));
+        assert!(is_start_codon(&[A,T,G]));
+        assert!(!is_start_codon(&[T,A,C]));
+    }
+    #[test]
+    #[should_panic]
+    fn start_length() {
+        use aminoacid::is_start_codon;        
+        assert!(is_start_codon(&[A,T,G,C]));
     }
 
     #[test]

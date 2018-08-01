@@ -60,22 +60,26 @@ impl<'a> From<&'a AminoAcid> for char {
 
 // these are just helper functions, make them pub once we use them
 // this should actually probably be a function of a slice, not a tuple
-pub fn is_start_codon(codon: (Base, Base, Base)) -> bool {
+// pub fn is_start_codon(codon: (Base, Base, Base)) -> bool {
+// pub fn is_start_codon(codon: &[Base; 3]) -> bool {
+pub fn is_start_codon(codon: &[Base]) -> bool {
     use base::Base::*;
-    match codon {
+    assert!(codon.len() == 3); // if we want to change this function to only check the head, then we can remove this assertion.
+    match &codon[..3] {
         // in fact, other codons can sometimes indicate a start, depending on nearby factors.
         // for this toy model we will keep it simple.
-        (A,T,G) => true,
+        // (A,T,G) => true,
+        &[A,T,G] => true,
         _       => false
     }
 }
 
-// TODO: slice, not tuple (or both)
-fn amino_code(codon: (Base, Base, Base)) -> AminoAcid {
-    // use Base::G;
+// fn amino_code(codon: (Base, Base, Base)) -> AminoAcid {
+fn amino_code(codon: &[Base; 3]) -> AminoAcid {
     use base::Base::*;
     use self::AminoAcid::*;
-    match codon {
+    assert!(codon.len() == 3);
+    match (codon[0], codon[1], codon[2]) { // somewhat awkward; may want to match to slice patter for everything below
         (T,T,b) => match b {
             T | C => Phe, A | G => Leu
         },
