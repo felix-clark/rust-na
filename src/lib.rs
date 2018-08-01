@@ -1,17 +1,22 @@
 // add this to lib in case we export later, but put it in main so we can use it here.
 #![feature(try_from)]
+// #![feature(exact_chunks)]
 
 mod base;
 mod baseseq;
 mod aminoacid;
 mod protein;
+mod translate;
 
 #[cfg(test)]
 mod tests {
+    use base::Base;
     use base::Base::*;
     use baseseq::BaseSeq;
     use std::convert::TryFrom;
-    
+    extern crate rand;
+    use self::rand::Rng;
+
     #[test]
     fn comp() {
         use base::complement;
@@ -53,6 +58,12 @@ mod tests {
     #[test]
     #[should_panic]
     fn invalid_seq() {
-        let bs = BaseSeq::try_from("ABCDEFG").unwrap();
+        BaseSeq::try_from("ABCDEFG").unwrap();
+    }
+
+    #[test]
+    fn random() {
+        let mut rng = rand::thread_rng();
+        let _rndbase: Base = rng.gen();
     }
 }

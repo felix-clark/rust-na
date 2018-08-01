@@ -40,7 +40,7 @@ impl TryFrom<char> for Base {
 }
 
 // the conversion from Base to char is safe, since there are no error possibilities.
-// could instead implement Into<char> for Base, but this is more idomatic
+// could instead implement Into<char> for Base, but this is more idiomatic
 impl From<Base> for char {
     fn from(b: Base) -> char {
         use self::Base::*;
@@ -75,7 +75,10 @@ impl Distribution<Base> for Standard {
 }
 
 // should this be implemented as base.complement() ?
-pub fn complement(base: Base) -> Base{
+// for some reason there are still warnings about this being unused, even tho there is a unit test
+// at least it only appears when running tests, with the #[cfg(test)] tag.
+#[cfg(test)]
+pub fn complement(base: Base) -> Base {
     use self::Base::*;
     match base {
         C => G,

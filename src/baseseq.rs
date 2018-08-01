@@ -1,9 +1,10 @@
 use base::*;
+use translate::*;
 
 use std::convert::{From, TryFrom};
 use std::fmt;
 use std::ops::Add;
-use std::slice::Iter;
+use std::slice::{Iter};
 use std::iter::{Iterator, FromIterator};
 
 // define a container for lists of bases.
@@ -35,6 +36,11 @@ impl BaseSeq {
         self.bs.append(&mut other.bs);
     }
 
+    // returns an iterator that will read the sequence and return the proteins
+    // modeling the job of mRNA
+    pub fn translate(&self) -> Translator {
+        Translator::new(&self.bs)
+    }
 }
 
 // the reference needs lifetime annotation
@@ -81,7 +87,10 @@ impl fmt::Display for BaseSeq {
 }
 
 impl FromIterator<Base> for BaseSeq {
-    fn from_iter<I: IntoIterator<Item=Base>>(iter: I) -> Self {
+    // fn from_iter<I: IntoIterator<Item=Base>>(iter: I) -> Self {
+    fn from_iter<I>(iter: I) -> Self
+        where I: IntoIterator<Item=Base>,
+    {
         let mut bs = BaseSeq::new();
         for i in iter {
             bs.push(i);
@@ -90,30 +99,16 @@ impl FromIterator<Base> for BaseSeq {
     }
 }
 
-// implement iterators over the sequence
-// all private?
-// may don't need to manually to it; just use windows() and chunks_exact()
-// TODO: actually, we might need to define a BaseIter that implements Iterator.
-// define a separate iterator (?) like CodonIter to read 3 at a time, using Chunks
-// impl Iterator for BaseSeq {
-//     type Item = Base;
-//     fn next(&mut self) -> Option<Self::Item> {
-//         self.bs.next()
-//     }
-// }
-
 // creates a copy, so probably isn't optimal or even as good as append()
 impl Add for BaseSeq {
     type Output = BaseSeq; // needed to define the result of adding two sequences
     fn add(self, other: BaseSeq) -> BaseSeq {
-        let cap = self.bs.len() + other.bs.len();
-        let mut vb: Vec<Base> = Vec::with_capacity(cap);
-        vb = self.bs; // does this render self used up? do we need to clone again?
+        let mut vb: Vec<Base> = self.bs;
+        vb.reserve(other.bs.len());
         // makes a copy of each element in other; may not be optimal
         vb.extend(other.bs.iter().cloned());
         BaseSeq {
             bs: vb,
-        }
-        
+        }        
     }
 }

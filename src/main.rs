@@ -1,50 +1,24 @@
 // -*- compile-command: "cargo build" -*-
 // add this to lib in case we export later, but put it in main so we can use it here.
 #![feature(try_from)]
+// #![feature(exact_chunks)]
 
-mod base; // not clear -- are these being imported?
+mod base;
+mod translate;
 mod baseseq;
 mod aminoacid;
 mod protein;
 
-use base::Base;
 use baseseq::BaseSeq;
 use protein::Protein;
 
 use std::env;
+use std::process;
 use std::fs::File;
 use std::io::Read;
-use std::process;
-
-extern crate rand;
-use rand::Rng;
 use std::convert::TryFrom;
 
 fn main() {
-    // todo: pretty much all of this code can be eliminated, once we finish the translation function
-    use Base::*;
-    println!("Adenine: {}", A);
-    println!("C(A): {}", base::complement(A));
-    println!("ATG is start codon: {}", aminoacid::is_start_codon(&[A,T,G]));
-    
-    let mut rng = rand::thread_rng();
-    let rndbase: Base = rng.gen();
-    println!("random: {}", rndbase);
-
-    let b1 = BaseSeq::try_from("AGTCAGTCTA").expect("this should be valid");
-    let b2 = BaseSeq::try_from("TGCAGCTAGC").expect("this should be valid");
-    let bsum = b1.clone() + b2.clone();
-    println!("added sequence: {} + {} = {}", b1, b2, bsum);
-
-    // need to finish what was started with FromIterator
-    // println!("complement:\t{}", bsum.iter().map(base::complement).collect());
-
-    // let prots = protein::translate(bsum);
-    // println!("translated:");
-    // prots.iter().for_each(|p| println!("  {}", p) );
-
-    // todo: better error description. should be able to catch the error and print it instead of catching w/ expect?
-    // let inputs: Vec<String> = parse_args(env::args().collect()).expect("io error");
     let inputs: Vec<String> = parse_args(env::args().collect()).unwrap_or_else(|err| {
         eprintln!("Problem parsing arguments: {}", err);
         process::exit(1);
@@ -56,7 +30,13 @@ fn main() {
         eprintln!("Problem parsing string as base sequence: {:?}", err);
         process::exit(1);
     });
-    let prots: Vec<Protein> = baseseqs.into_iter().map(protein::translate).collect::<Vec<Vec<_>>>().concat();
+    // let prots: Vec<Protein> = baseseqs.into_iter().map(protein::translate).collect::<Vec<Vec<_>>>().concat();
+    // let prots: Vec<Protein> = baseseqs.for_each(|bs| bs.translate().iter().collect()).concat();
+    let mut prots: Vec<Protein> = Vec::new();
+    for bs in baseseqs {
+        let newp: Vec<Protein> = bs.translate().collect();
+        prots.extend(newp);
+    }
     prots.iter().for_each(|p| println!("  {}", p) );
     
 }

@@ -69,7 +69,7 @@ pub fn is_start_codon(codon: &[Base]) -> bool {
         // in fact, other codons can sometimes indicate a start, depending on nearby factors.
         // for this toy model we will keep it simple.
         // (A,T,G) => true,
-        &[A,T,G] => true,
+        [A,T,G] => true,
         _       => false
     }
 }
