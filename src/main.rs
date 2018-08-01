@@ -31,14 +31,13 @@ fn main() {
     let rndbase: Base = rng.gen();
     println!("random: {}", rndbase);
 
-    // let b1 = BaseSeq::try_from("AGTCAGTCTA").expect("this should be valid");
-    // let b2 = BaseSeq::try_from("TGCAGCTAGC").expect("this should be valid");
-    // let bsum = b1.clone() + b2.clone();
-    // println!("added sequence: {} + {} = {}", b1, b2, bsum);
-    
-    // let's implement something like this: (needs iterator for BaseSeq?)
-    // need 3 kinds of iterators, w/ the default one provided by iter() to simply loop over 1 base at a time.
-    // println!("complement:\t{}", bs.iter().map(|b| Base::complement(b)).collect());
+    let b1 = BaseSeq::try_from("AGTCAGTCTA").expect("this should be valid");
+    let b2 = BaseSeq::try_from("TGCAGCTAGC").expect("this should be valid");
+    let bsum = b1.clone() + b2.clone();
+    println!("added sequence: {} + {} = {}", b1, b2, bsum);
+
+    // need to finish what was started with FromIterator
+    // println!("complement:\t{}", bsum.iter().map(base::complement).collect());
 
     // let prots = protein::translate(bsum);
     // println!("translated:");
@@ -64,13 +63,18 @@ fn main() {
 
 // takes std argv, removes the binary name, and reads the files if -f is included.
 // returns a vector of strings to be parsed as base sequences.
-fn parse_args(mut args: Vec<String>) -> Result<Vec<String>, std::io::Error> {
-    args.remove(0); // the first element is the binary name
+fn parse_args(args: Vec<String>) -> Result<Vec<String>, std::io::Error> {
+    let mut it_arg = args.into_iter().peekable(); // make peekable to check first
+    // args.remove(0); // the first element is the binary name
+    it_arg.next(); // ignore the first element
     // if the next element is the tag "-f", will open as filenames and attempt to read.
-    let read_files = args.len() > 1 && &args[0] == "-f";
+    // let read_files = args.len() > 1 && &args[0] == "-f";
+    let read_files = it_arg.peek() == Some(&String::from("-f"));
     if read_files {
-        args.remove(0);
-        let fins: Vec<File> =  args.into_iter().map(File::open).collect::<Result<_,_>>()?;
+        it_arg.next();
+        // args.remove(0);
+        // let fins: Vec<File> =  args.into_iter().map(File::open).collect::<Result<_,_>>()?;
+        let fins: Vec<File> =  it_arg.map(File::open).collect::<Result<_,_>>()?;
         let mut inputs: Vec<String> = Vec::new();
         for mut f in fins {
             let mut contents = String::new();
@@ -79,7 +83,7 @@ fn parse_args(mut args: Vec<String>) -> Result<Vec<String>, std::io::Error> {
         }
         Ok(inputs)
     } else {
-        Ok(args)
+        Ok(it_arg.collect())
     }
     
 }

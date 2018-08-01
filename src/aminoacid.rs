@@ -74,11 +74,12 @@ pub fn is_start_codon(codon: &[Base]) -> bool {
     }
 }
 
-// fn amino_code(codon: (Base, Base, Base)) -> AminoAcid {
-fn amino_code(codon: &[Base; 3]) -> AminoAcid {
+// pub fn amino_code(codon: (Base, Base, Base)) -> AminoAcid {
+// pub fn amino_code(codon: &[Base; 3]) -> AminoAcid {
+pub fn amino_code(codon: &[Base]) -> AminoAcid {
     use base::Base::*;
     use self::AminoAcid::*;
-    assert!(codon.len() == 3);
+    assert!(codon.len() == 3); // could be removed to only check the head
     match (codon[0], codon[1], codon[2]) { // somewhat awkward; may want to match to slice patter for everything below
         (T,T,b) => match b {
             T | C => Phe, A | G => Leu
