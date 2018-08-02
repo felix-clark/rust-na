@@ -71,8 +71,8 @@ fn write_protein(bs: &[Base]) -> (Protein, &[Base]) {
         }
     {
         result.push(thisa);
-        thisa = amino_code(&bs[(steps)..(steps+step_size)]);
         steps += step_size;
+        thisa = amino_code(&bs[(steps)..(steps+step_size)]);
     }
     
     // we want a sort of "chunks" method, but we need to hang on to the rest as well.
