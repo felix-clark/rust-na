@@ -57,7 +57,8 @@ impl<'a> From<&'a AminoAcid> for char {
             Trp => 'W',
             Tyr => 'Y',
             Val => 'V',
-            STOP => 'X', // not a real symbol. use None, if we roll w/ Option?
+            STOP => '*',
+            // a gap of indeterminate length is symbolized by '-'; not clear we need that here
         }
     }
 }
