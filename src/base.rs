@@ -17,6 +17,7 @@ pub enum Base {
     A,
     G,
 }
+// one could assign a high similarity score for A-G/C-T (purine/pyrimidine), a low one for A-T/C-G (weak/strong), and very low or zero for A-C/T-G (amino/keto).
 
 #[derive(Debug)]
 pub enum ParseError {
