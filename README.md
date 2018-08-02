@@ -27,3 +27,11 @@ The `-f` option can also be passed, in which case the executable will try to ope
 ```
 cargo run -- -f gene.data
 ```
+
+## TODO
+
+function to copy/mutate a BaseSeq with configurable insertion, deletion, and SNP rates.
+
+sexual reproduction with crossover
+
+comparison functions of sequences (e.g. total base numbers, "strength" (GC minus AT) or other combinations). can do di/tri-nucleotide frequency and correlation functions as well. this could help form metrics for sequence comparison.

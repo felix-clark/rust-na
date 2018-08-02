@@ -4,7 +4,7 @@ use base::*;
 use protein::*;
 use aminoacid::*;
 
-// sort of doing transcription and translation at once
+// sort of does transcription and translation at once
 #[derive(Debug)]
 pub struct Translator<'a> {
     v: &'a [Base],
@@ -39,13 +39,11 @@ impl<'a> Iterator for Translator<'a> {
     }
 }
 
-// fn next_start<'a>(bs: &'a Vec<Base>) -> Option<&'a Vec<Base>> {
 fn next_start(bs: &[Base]) -> Option<&[Base]> {
-    use aminoacid::is_start_codon;
     if bs.len() < 3 {
         return None
     }
-    if is_start_codon(&bs[..3]) {
+    if head_is_start_codon(&bs) {
         Some(&bs)
     } else {
         next_start(&bs[1..])
@@ -54,7 +52,6 @@ fn next_start(bs: &[Base]) -> Option<&[Base]> {
 
 // might be nice to write this as an iterator over an amino acid
 fn write_protein(bs: &[Base]) -> (Protein, &[Base]) {
-// fn write_protein<'a>(bs: &'a[Base]) -> (Option<AminoAcid>, &'a[Base]) {
     // this might be a pretty ugly C-style function right now, just to get it working.
     let seqlen = bs.len();
     let step_size = 3;
@@ -64,12 +61,14 @@ fn write_protein(bs: &[Base]) -> (Protein, &[Base]) {
     let mut result = Protein::new();
 
     let mut thisa: AminoAcid = amino_code(&bs[..step_size]);
-    // awkward pattern matching to avoid deriving PartialEq for AminoAcid (tho this would not be a big problem)
+    // awkward pattern matching to avoid deriving PartialEq for AminoAcid
+    //  (tho this would not be a big problem)
     while
         steps + step_size <= seqlen &&
         match thisa {
             AminoAcid::STOP => false,
-            _ => true }
+            _ => true
+        }
     {
         result.push(thisa);
         thisa = amino_code(&bs[(steps)..(steps+step_size)]);
