@@ -29,7 +29,7 @@ fn main() {
     });
     
     let prots = baseseqs.iter().flat_map(|seq| seq.translate());
-    prots.for_each( |p| println!("  {}", p) );    
+    prots.for_each( |p| println!("{}", p) );    
 }
 
 // takes std argv, removes the binary name, and reads the files if -f is included.

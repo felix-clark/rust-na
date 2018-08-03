@@ -31,8 +31,6 @@ impl<'a> Translator<'a> {
 impl<'a> Iterator for Translator<'a> {
     type Item = Protein;
     fn next(&mut self) -> Option<Protein> {
-        // could use Option::and_then(f) to apply a function if an option exists,
-        // self.it.by_ref().skip_while(|it: &Iter<Base>| ! at_start_codon(&it)); // function is on iterator, not base
         while ! at_start_codon(&self.it) {
             let remaining = self.it.next();
             if remaining == None {
@@ -40,7 +38,7 @@ impl<'a> Iterator for Translator<'a> {
             }
         }
         let prot: Protein = write_protein(&mut self.it);
-        // assert!(prot.len() != 0); // len() is not implemented for Protein
+        // we should consider filtering out small proteins: the smallest known is 20 amino acids long
         Some(prot)   
     }
 }
@@ -50,17 +48,15 @@ fn at_start_codon(ib: &Iter<Base>) -> bool {
     is_start_codon(topthr.as_slice())
 }
 
-
-// might be nice to write this as an iterator over an amino acid
-// fn write_protein<'a>(bs: &'a mut Iter<Base>) -> Iter<'a, AminoAcid>
+// might be nice to write this with an iterator over amino acids
 fn write_protein(bs: &mut Iter<Base>) -> Protein
 {
-    let is_not_stop = |aa: &AminoAcid| {
+    let is_not_stop_codon = |aa: &AminoAcid| {
         match aa {
             AminoAcid::STOP => false,
             _ => true,
         }
     };
-    let prot: Protein = bs.tuples().map(|tup: (_,_,_)| amino_code(tup)).take_while(is_not_stop).collect();
+    let prot: Protein = bs.tuples().map(|tup: (_,_,_)| amino_code(tup)).take_while(is_not_stop_codon).collect();
     prot        
 }
