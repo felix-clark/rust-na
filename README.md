@@ -18,8 +18,8 @@ For instance:
 
 ```
 cargo run CCATGTCGAAGTCGCTAAGCTCTCGTAGAAAATCGATTAGATAAATATATATATGCTGCTCGAGATCGA
-      MMSKSLSSRRKSIR
-      MMLLE
+      MSKSLSSRRKSIR
+      MLLEI
 ```
 
 The `-f` option can also be passed, in which case the executable will try to open the file with the given name for reading.
