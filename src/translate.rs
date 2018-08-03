@@ -4,130 +4,63 @@ use base::*;
 use protein::*;
 use aminoacid::*;
 
+use std::iter::Iterator;
+use std::slice::Iter;
+
+extern crate itertools;
+use self::itertools::Itertools; // using this trait gives us everything
+
 // sort of does transcription and translation at once
 #[derive(Debug)]
 pub struct Translator<'a> {
-    v: &'a [Base],
+    it: Iter<'a, Base>, // should these lifetimes be the same?
 }
 
 impl<'a> Translator<'a> {
-    pub fn new(bs: &'a [Base]) -> Translator {
-        Translator {
-            v: &bs,
-        }
+    pub fn new(it: Iter<'a, Base>) -> Self {
+        Translator{it}
     }
 }
+
+// // or as a trait?
+// pub trait Translator<I,O>
+// {
+//     fn translate(&self) -> Box<Iterator<Item = O>>;
+// }
 
 impl<'a> Iterator for Translator<'a> {
     type Item = Protein;
-
     fn next(&mut self) -> Option<Protein> {
         // could use Option::and_then(f) to apply a function if an option exists,
-        //  but it might be safer to set self.v to an empty slice.
-        match next_start(self.v) {
-            None => {
-                self.v = &[];
-                None
-            }
-            Some(x) => {
-                let (prot, rest) = write_protein(x);
-                self.v = rest;
-                Some(prot)
+        // self.it.by_ref().skip_while(|it: &Iter<Base>| ! at_start_codon(&it)); // function is on iterator, not base
+        while ! at_start_codon(&self.it) {
+            let remaining = self.it.next();
+            if remaining == None {
+                return None;
             }
         }
-        
+        let prot: Protein = write_protein(&mut self.it);
+        // assert!(prot.len() != 0); // len() is not implemented for Protein
+        Some(prot)   
     }
 }
 
-fn next_start(bs: &[Base]) -> Option<&[Base]> {
-    let x = bs.as_ref().windows(3);
-    if bs.len() < 3 {
-        return None
-    }
-    if head_is_start_codon(&bs) {
-        Some(&bs)
-    } else {
-        next_start(&bs[1..])
-    }
-}
-
-// // convenience function to use below
-// fn not_stop(aa: AminoAcid) -> Option<AminoAcid> {
-//     match aa {
-//         AminoAcid::STOP => None,
-//         x => Some(x),
-//     }
-// }
-
-// private iterator struct to use below
-// very similar to a Windows iter, but keeps track of remaining for retrieval later.
-struct CodonIter<'a> {
-    v: &'a [Base],
-}
-impl<'a> CodonIter<'a> {
-    pub fn new(bs: &'a [Base]) -> CodonIter {
-        CodonIter {
-            v: &bs,
-        }
-    }
-    // function to get the remaining sequence
-    pub fn remaining(&self) -> &[Base] {
-        // make sure we should be stopped
-        assert!(self.v.len() < 3
-                match amino_code(self.v[..3]) {
-                    AminoAcid::STOP => true,
-                    _ => false,
-                });
-        self.v
-    }
-}
-impl<'a> Iterator for CodonIter<'a> {
-    type Item = AminoAcid;
-    fn next(&mut self) -> Option<Self::Item> {
-        let step_size = 3;
-        if self.v.len() < step_size {
-            return None
-        }
-        let code = amino_code(&self.v[..step_size]);
-        self.v = &self.v[step_size..];
-        match code {
-            AminoAcid::STOP => None,
-            x => Some(x),
-        }
-    }
+fn at_start_codon(ib: &Iter<Base>) -> bool {
+    let topthr = ib.clone().take(3).cloned().collect::<Vec<_>>();
+    is_start_codon(topthr.as_slice())
 }
 
 
 // might be nice to write this as an iterator over an amino acid
-fn write_protein(bs: &[Base]) -> (Protein, &[Base]) {
-    
-    // let mut codit = CodonIter::new(bs);
-    // // let result: Protein = codit.collect();
-    // (codit.collect(), codit.remaining())
-
-    
-    // can likely use by_ref() to retain the iterator instead of letting it be discarded.
-    
-    // this might be a pretty ugly C-style function right now, just to get it working.
-    let seqlen = bs.len();
-    let step_size = 3;
-    assert!(seqlen >= step_size);
-    let mut steps: usize = 0;
-    let mut result = Protein::new();
-    let mut thisa: AminoAcid = amino_code(&bs[..step_size]);
-    // awkward pattern matching to avoid deriving PartialEq for AminoAcid
-    //  (tho this would not be a big problem)
-    while
-        steps + step_size <= seqlen &&
-        match thisa {
+// fn write_protein<'a>(bs: &'a mut Iter<Base>) -> Iter<'a, AminoAcid>
+fn write_protein(bs: &mut Iter<Base>) -> Protein
+{
+    let is_not_stop = |aa: &AminoAcid| {
+        match aa {
             AminoAcid::STOP => false,
-            _ => true
+            _ => true,
         }
-    {
-        result.push(thisa);
-        steps += step_size;
-        thisa = amino_code(&bs[(steps)..(steps+step_size)]);
-    }    
-    // we want a sort of "chunks" method, but we need to hang on to the rest as well.
-    (result, &bs[steps..]) //  a placeholder
+    };
+    let prot: Protein = bs.tuples().map(|tup: (_,_,_)| amino_code(tup)).take_while(is_not_stop).collect();
+    prot        
 }

@@ -1,18 +1,20 @@
 use base::*;
+// use aminoacid::AminoAcid;
 use translate::*;
 
 use std::convert::{From, TryFrom};
 use std::fmt;
 use std::ops::Add;
 use std::slice::{Iter};
-use std::iter::{Iterator, FromIterator};
+use std::iter::{Iterator,
+                FromIterator,
+};
 
 // define a container for lists of bases.
 // derive Debug so we can use assertions in test
 #[derive(Clone,Default,Debug,PartialEq)]
 pub struct BaseSeq {
-    // TODO: eventually this should be made not-public, but for now...
-    pub bs: Vec<Base>,
+    bs: Vec<Base>,
     // or should we use a VecDeque, or linked list?
 }
 
@@ -22,6 +24,7 @@ impl BaseSeq {
     }
 
     // allows simple iteration base-by-base
+    // return Iterator<Item=Base> instead? (no: not concrete type)
     pub fn iter(&self) -> Iter<Base> {
         self.bs.iter()
     }
@@ -39,9 +42,17 @@ impl BaseSeq {
     // returns an iterator that will read the sequence and return the proteins
     // modeling the job of mRNA
     pub fn translate(&self) -> Translator {
-        Translator::new(&self.bs)
+        Translator::new(self.bs.iter())
     }
 }
+
+// TODO: implement iterator adaptor?
+// impl Translator<Base, AminoAcid> for BaseSeq {
+//     // Iterator is not a type, so we need
+//     fn translate(&self) -> Box<Iterator<Item = AminoAcid>> {
+//         empty::<AminoAcid>()
+//     }
+// }
 
 // the reference needs lifetime annotation
 impl<'a> TryFrom<&'a str> for BaseSeq {
@@ -79,9 +90,6 @@ impl<'a> From<&'a BaseSeq> for String {
 
 impl fmt::Display for BaseSeq {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        // b has type iter(Base):
-        // let outstr: String = self.bs.iter().map(|b| (*b).into(): char).collect(); // need #![feature(type_ascription)] for this syntax
-        // let outstr: String = self.bs.iter().map(|b| char::from(*b)).collect();
         write!(f, "{}", String::from(self))
     }
 }
