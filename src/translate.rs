@@ -44,7 +44,7 @@ impl<'a> Iterator for Translator<'a> {
 }
 
 fn at_start_codon(ib: &Iter<Base>) -> bool {
-    let topthr = ib.clone().take(3).cloned().collect::<Vec<_>>();
+    let topthr = ib.clone().take(3).collect::<Vec<_>>();
     is_start_codon(topthr.as_slice())
 }
 

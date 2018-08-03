@@ -66,7 +66,7 @@ impl<'a> From<&'a AminoAcid> for char {
 // these are just helper functions, make them pub once we use them
 // this should actually probably be a function of a slice, not a tuple
 // pub fn is_start_codon(codon: (Base, Base, Base)) -> bool {
-pub fn is_start_codon(codon: &[Base]) -> bool {
+pub fn is_start_codon(codon: &[&Base]) -> bool {
     use base::Base::*;
     match codon {
         [A,T,G] => true,
