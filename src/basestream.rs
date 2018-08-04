@@ -8,6 +8,7 @@ use std::str::Chars;
 pub struct BaseStream<'s> {
     read: Reader,
     // strbuff: &'s String,
+    buffer: Vec<Base>,
     strit: Option<Chars<'s>>,
 }
 
@@ -19,7 +20,9 @@ pub struct BaseStream<'s> {
 
 impl<'s> From<Reader> for BaseStream<'s> {
     fn from(read: Reader) -> BaseStream<'s> {
-        BaseStream{read, strit: None}
+        BaseStream{read,
+                   buffer: Vec::with_capacity(80),
+                   strit: None}
     }
 }
 
