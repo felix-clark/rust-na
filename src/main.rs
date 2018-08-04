@@ -8,6 +8,8 @@ mod translate;
 mod baseseq;
 mod aminoacid;
 mod protein;
+mod fasta;
+mod basestream;
 
 use baseseq::BaseSeq;
 
@@ -29,7 +31,7 @@ fn main() {
     });
     
     let prots = baseseqs.iter().flat_map(|seq| seq.translate());
-    prots.for_each( |p| println!("{}", p) );    
+    prots.filter(|p| p.len() >= 0).for_each( |p| println!("{}", p) );
 }
 
 // takes std argv, removes the binary name, and reads the files if -f is included.

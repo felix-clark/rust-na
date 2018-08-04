@@ -4,7 +4,7 @@ use translate::*;
 
 use std::convert::{From, TryFrom};
 use std::fmt;
-use std::ops::Add;
+// use std::ops::Add;
 use std::slice::{Iter};
 use std::iter::{Iterator,
                 FromIterator,
@@ -12,19 +12,21 @@ use std::iter::{Iterator,
 
 // define a container for lists of bases.
 // derive Debug so we can use assertions in test
+// this struct should be used for storing sequences; BaseStream should be used for reading from a file to process.
 #[derive(Clone,Default,Debug,PartialEq)]
 pub struct BaseSeq {
     bs: Vec<Base>,
-    // or should we use a VecDeque, or linked list?
 }
 
 impl BaseSeq {
-    pub fn new() -> BaseSeq {
+    // pub fn new(it: I) -> BaseSeq
+    // where I: Iterator<Item=String>
+    pub fn new() -> BaseSeq
+    {
         BaseSeq {bs: Vec::new(),}
     }
 
     // allows simple iteration base-by-base
-    // return Iterator<Item=Base> instead? (no: not concrete type)
     pub fn iter(&self) -> Iter<Base> {
         self.bs.iter()
     }
@@ -43,6 +45,16 @@ impl BaseSeq {
     // modeling the job of mRNA
     pub fn translate(&self) -> Translator {
         Translator::new(self.bs.iter())
+    }
+
+    pub fn complement(&self) -> BaseSeq {
+        self.iter().map(|b| complement(*b)).collect()
+    }
+    pub fn strength(&self) -> i32 {
+        self.iter().fold(0, |x,b| x + strength(*b))
+    }
+    pub fn len(&self) -> usize {
+        self.bs.len()
     }
 }
 
@@ -108,15 +120,16 @@ impl FromIterator<Base> for BaseSeq {
 }
 
 // creates a copy, so probably isn't optimal or even as good as append()
-impl Add for BaseSeq {
-    type Output = BaseSeq; // needed to define the result of adding two sequences
-    fn add(self, other: BaseSeq) -> BaseSeq {
-        let mut vb: Vec<Base> = self.bs;
-        vb.reserve(other.bs.len());
-        // makes a copy of each element in other; may not be optimal
-        vb.extend(other.bs.iter().cloned());
-        BaseSeq {
-            bs: vb,
-        }        
-    }
-}
+// in fact we don't even want this. we can add Vec<Base> if we really want.
+// impl Add for BaseSeq {
+//     type Output = BaseSeq; // needed to define the result of adding two sequences
+//     fn add(self, other: BaseSeq) -> BaseSeq {
+//         let mut vb: Vec<Base> = self.bs;
+//         vb.reserve(other.bs.len());
+//         // makes a copy of each element in other; may not be optimal
+//         vb.extend(other.bs.iter().cloned());
+//         BaseSeq {
+//             bs: vb,
+//         }        
+//     }
+// }

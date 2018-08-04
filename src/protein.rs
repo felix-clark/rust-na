@@ -16,6 +16,9 @@ impl Protein {
     pub fn push(&mut self, a: AminoAcid) {
         self.aas.push(a);
     }
+    pub fn len(&self) -> usize {
+        self.aas.len()
+    }
 }
 
 // define the short-format output (debug will print 3-letter indicaters)

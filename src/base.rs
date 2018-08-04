@@ -78,7 +78,7 @@ impl Distribution<Base> for Standard {
 // should this be implemented as base.complement() ?
 // for some reason there are still warnings about this being unused, even tho there is a unit test
 // at least it only appears when running tests, with the #[cfg(test)] tag.
-#[cfg(test)]
+// #[cfg(test)]
 pub fn complement(base: Base) -> Base {
     use self::Base::*;
     match base {
@@ -86,6 +86,14 @@ pub fn complement(base: Base) -> Base {
         T => A,
         A => T,
         G => C,
+    }
+}
+
+pub fn strength(base: Base) -> i32 {
+    use self::Base::*;
+    match base {
+        C | G => 1,
+        A | T => -1,
     }
 }
 
