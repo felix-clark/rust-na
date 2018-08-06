@@ -23,10 +23,10 @@ impl Reader {
 }
 
 // will yield one line at a time. it should return None when reaching a new sequence, then be reachable again.
-impl self::Reader {
-// // impl Iterator for self::Reader {
-//     type Item = String;
-    fn next(&mut self) -> Option<&String> {
+// impl self::Reader {
+impl Iterator for self::Reader {
+    type Item = String;
+    fn next(&mut self) -> Option<String> {
         self.buffer.clear();
         match self.reader.read_line(&mut self.buffer) {
             Err(err) => {
@@ -41,7 +41,10 @@ impl self::Reader {
             // a '>' indicates a comment line, starting a new entry. could fill a comment buffer
             Some('>') => None,
             // can we get rid of this clone?
-            _ => Some(&self.buffer), // valid line
+            _ => {
+                println!("{}", self.buffer);
+                Some(self.buffer.clone()) // valid line
+            }
         }
     }
 }

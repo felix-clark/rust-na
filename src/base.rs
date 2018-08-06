@@ -40,6 +40,21 @@ impl TryFrom<char> for Base {
     }
 }
 
+impl TryFrom<u8> for Base {
+    type Error = self::ParseError;
+    fn try_from(c: u8) -> Result<Self, Self::Error> {
+        use self::Base::*;
+        match c {
+            b'C' => Ok(C),
+            b'T' => Ok(T),
+            b'A' => Ok(A),
+            b'G' => Ok(G),
+            x => Err(ParseError::InvalidBase(x.into())),
+        }
+
+    }
+}
+
 // the conversion from Base to char is safe, since there are no error possibilities.
 // could instead implement Into<char> for Base, but this is more idiomatic
 impl From<Base> for char {
