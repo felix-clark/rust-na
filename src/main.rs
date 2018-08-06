@@ -22,16 +22,12 @@ use std::convert::TryFrom;
 fn main() {
     let mut it_arg = env::args().into_iter().peekable(); // make peekable to check the first argument for the "-f" flag
     it_arg.next(); // ignore the first element, which is the binary name
-    // if the next element is the tag "-f", will open as filenames and attempt to read.
+    // if the next element is the tag "-i", will attempt to read from stdin.
     let read_stdin = it_arg.peek() == Some(&String::from("-i"));
 
     let mut baseseqs: Vec<BaseSeq> = Vec::new(); //will change this later; should be streaming too
     if read_stdin {
         it_arg.next(); // skip the "-i"
-        // let inputs: Vec<String> = parse_args().unwrap_or_else(|err| {
-        //     eprintln!("Problem parsing arguments: {}", err);
-        //     process::exit(1);
-        // });
         baseseqs = it_arg.map(BaseSeq::try_from).collect::<Result<_,_>>().unwrap_or_else(|err| {
             eprintln!("Problem parsing string as base sequence: {:?}", err);
             process::exit(1);
