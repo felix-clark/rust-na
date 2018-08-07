@@ -8,7 +8,7 @@ mod aminoacid;
 mod protein;
 mod translate;
 mod fasta;
-mod basestream;
+// mod basestream;
 
 #[cfg(test)]
 mod tests {

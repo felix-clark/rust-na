@@ -6,7 +6,7 @@ use fasta::Reader;
 use std::str::Chars;
 
 pub struct BaseStream<'s> {
-    read: Reader,
+    read: Reader<Iterator<Item = String>>,
     // strbuff: &'s String,
     buffer: Vec<Base>,
     strit: Option<Chars<'s>>,
@@ -18,8 +18,10 @@ pub struct BaseStream<'s> {
 //     }
 // }
 
-impl<'s> From<Reader> for BaseStream<'s> {
-    fn from(read: Reader) -> BaseStream<'s> {
+impl<'s, I> From<Reader<I>> for BaseStream<'s>
+    where I: Iterator<Item = String>
+{
+    fn from(read: Reader<I>) -> BaseStream<'s> {
         BaseStream{read,
                    buffer: Vec::with_capacity(80),
                    strit: None}
