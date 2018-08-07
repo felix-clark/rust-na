@@ -66,6 +66,12 @@ impl BaseSeq {
 //     }
 // }
 
+impl From<Vec<Base>> for BaseSeq {
+    fn from(bs: Vec<Base>) -> BaseSeq {
+        BaseSeq{bs}
+    }
+}
+
 // the reference needs lifetime annotation
 impl<'a> TryFrom<&'a str> for BaseSeq {
     type Error = ParseError; // from base
@@ -119,8 +125,8 @@ impl FromIterator<Base> for BaseSeq {
     }
 }
 
-// creates a copy, so probably isn't optimal or even as good as append()
-// in fact we don't even want this. we can add Vec<Base> if we really want.
+// // creates a copy, so probably isn't optimal or even as good as append()
+// // in fact we don't even want this. we can add Vec<Base> if we really want.
 // impl Add for BaseSeq {
 //     type Output = BaseSeq; // needed to define the result of adding two sequences
 //     fn add(self, other: BaseSeq) -> BaseSeq {
@@ -133,3 +139,11 @@ impl FromIterator<Base> for BaseSeq {
 //         }        
 //     }
 // }
+
+impl Extend<Base> for BaseSeq {
+    fn extend<T: IntoIterator<Item=Base>>(&mut self, iter: T) {
+        for elem in iter {
+            self.bs.push(elem);
+        }
+    }
+}

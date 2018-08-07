@@ -8,7 +8,7 @@ mod translate;
 mod baseseq;
 mod aminoacid;
 mod protein;
-mod fasta;
+// mod fasta;
 // mod basestream;
 
 use baseseq::BaseSeq;
@@ -17,12 +17,17 @@ use base::Base;
 use std::env;
 use std::process;
 use std::fs::File;
-use std::io::Read;
+use std::io;
+use std::io::{
+    // Read,
+    BufRead,
+    BufReader};
 use std::convert::TryFrom;
 
-extern crate itertools;
+// extern crate itertools;
+// use itertools::Itertools;
 
-fn main() -> Result<(), std::io::Error> {
+fn main() -> io::Result<()> {
     let mut it_arg = env::args().into_iter().peekable(); // make peekable to check the first argument for the "-f" flag
     it_arg.next(); // ignore the first element, which is the binary name
     // if the next element is the tag "-i", will attempt to read from stdin.
@@ -37,54 +42,50 @@ fn main() -> Result<(), std::io::Error> {
         });
     } else {
         let fins: Vec<File> =  it_arg.map(File::open).collect::<Result<_,_>>()?;
-        let mut inputs: Vec<String> = Vec::new();
         for mut f in fins {
-            let reader = fasta::Reader::new(f);
-            let comb = itertools::concat(reader);
-            // inputs.extend(reader.collect::<Vec<_>>()); // not efficient at all -- change this
-            println!("{:?}", comb);
-            let bs = comb.bytes().map(Base::try_from).collect::<Result<_,_>>()?;
-            println!("{:?}", bs);
-            baseseqs.push(bs);
+            // let reader = fasta::Reader::new(f);
+            let reader = BufReader::new(f);
+            let comment_line = |l: &String| -> bool {
+                let mut peek = l.bytes();
+                match peek.next() {
+                    Some(b'>') => true,
+                    _ => false,
+                }
+            };
+
+            // let mut bs_buff = BaseSeq::new();
+            let mut bs_buff: Vec<Base> = Vec::new();
+            for line in reader.lines() {
+                let lr = line?;
+                if comment_line(&lr) {
+                    if !bs_buff.is_empty() {
+                        // clone is not efficient, but let's get it working first
+                        baseseqs.push(BaseSeq::from(bs_buff.clone()));
+                        bs_buff.clear();
+                    }
+                    println!("comment line: {}", lr);
+                    // baseseqs.push(BaseSeq::new());
+                } else {
+                    let bases = lr.bytes().map(Base::try_from).collect::<Result<Vec<_>,_>>()
+                        .unwrap_or_else(|err| {
+                            eprintln!("problem parsing base: {:?}", err);
+                            process::exit(1);
+                        });
+                    bs_buff.extend(bases);
+                    // println!("{:?}", bs_buff);
+                }
+            }
+            if !bs_buff.is_empty() {
+                // clone is not efficient, but let's get it working first
+                baseseqs.push(BaseSeq::from(bs_buff.clone()));
+                bs_buff.clear();
+            }
+
         }
     }
     
-    // let inputs: Vec<String> = parse_args(env::args().collect()).unwrap_or_else(|err| {
-    //     eprintln!("Problem parsing arguments: {}", err);
-    //     process::exit(1);
-    // });
-    
-    // let baseseqs: Vec<BaseSeq> = inputs.into_iter().map(BaseSeq::try_from).collect::<Result<_,_>>().unwrap_or_else(|err| {
-    //     eprintln!("Problem parsing string as base sequence: {:?}", err);
-    //     process::exit(1);
-    // });
-    
     let prots = baseseqs.iter().flat_map(|seq| seq.translate());
-    prots.filter(|p| p.len() >= 0).for_each( |p| println!("{}", p) );
+    prots.filter(|p| p.len() >= 20).for_each( |p| println!("{}", p) );
+    // prots.for_each( |p| println!("{}", p) );
     Ok(())
 }
-
-// // takes std argv, removes the binary name, and reads the files if -f is included.
-// // returns a vector of strings to be parsed as base sequences.
-// fn parse_args(args: Vec<String>) -> Result<Vec<String>, std::io::Error> {
-//     let mut it_arg = args.into_iter().peekable(); // make peekable to check the first argument for the "-f" flag
-//     it_arg.next(); // ignore the first element, which is the binary name
-//     // if the next element is the tag "-f", will open as filenames and attempt to read.
-//     let read_files = it_arg.peek() == Some(&String::from("-f"));
-//     if read_files {
-//         it_arg.next();
-//         let fins: Vec<File> =  it_arg.map(File::open).collect::<Result<_,_>>()?;
-//         let mut inputs: Vec<String> = Vec::new();
-//         for mut f in fins {
-//             let reader = fasta::Reader::new(f);
-            
-//             inputs.extend(reader.collect::<Vec<_>>()); // not efficient at all -- change this
-//             // let mut contents = String::new();
-//             // f.read_to_string(&mut contents)?;
-//             // inputs.extend(contents.split_whitespace().map(String::from));
-//         }
-//         Ok(inputs)
-//     } else {
-//         Ok(it_arg.collect())
-//     }    
-// }

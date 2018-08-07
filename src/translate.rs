@@ -32,10 +32,7 @@ impl<'a> Iterator for Translator<'a> {
     type Item = Protein;
     fn next(&mut self) -> Option<Protein> {
         while ! at_start_codon(&self.it) {
-            let remaining = self.it.next();
-            if remaining == None {
-                return None;
-            }
+            let _remaining = self.it.next()?;
         }
         let prot: Protein = write_protein(&mut self.it);
         // we should consider filtering out small proteins: the smallest known is 20 amino acids long
@@ -57,5 +54,5 @@ fn write_protein(bs: &mut Iter<Base>) -> Protein
         }
     };
     let prot: Protein = bs.tuples().map(|tup: (_,_,_)| amino_code(tup)).take_while(is_not_stop_codon).collect();
-    prot        
+    prot
 }
