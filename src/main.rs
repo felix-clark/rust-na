@@ -23,6 +23,7 @@ use std::io::{
     BufRead,
     BufReader};
 use std::convert::TryFrom;
+use std::mem::{size_of, size_of_val};
 
 // extern crate itertools;
 // use itertools::Itertools;
@@ -60,10 +61,12 @@ fn main() -> io::Result<()> {
                 if comment_line(&lr) {
                     if !bs_buff.is_empty() {
                         // clone is not efficient, but let's get it working first
-                        baseseqs.push(BaseSeq::from(bs_buff.clone()));
+                        let bseq = BaseSeq::from(bs_buff.clone());
+                        println!("len/size: {} / {}", bseq.len(), size_of_val::<BaseSeq>(&bseq));
+                        baseseqs.push(bseq);
                         bs_buff.clear();
                     }
-                    println!("comment line: {}", lr);
+                    // println!("comment line: {}", lr);
                     // baseseqs.push(BaseSeq::new());
                 } else {
                     let bases = lr.bytes().map(Base::try_from).collect::<Result<Vec<_>,_>>()
@@ -77,7 +80,10 @@ fn main() -> io::Result<()> {
             }
             if !bs_buff.is_empty() {
                 // clone is not efficient, but let's get it working first
-                baseseqs.push(BaseSeq::from(bs_buff.clone()));
+                // println!("vector len/size: {} / {}", bs_buff.len(), size_of_val::<Vec<Base>>(&bs_buff));
+                let bseq = BaseSeq::from(bs_buff.clone());
+                // println!("baseseq len/size: {} / {}", bseq.len(), size_of_val::<BaseSeq>(&bseq));
+                baseseqs.push(bseq);
                 bs_buff.clear();
             }
 
@@ -87,5 +93,6 @@ fn main() -> io::Result<()> {
     let prots = baseseqs.iter().flat_map(|seq| seq.translate());
     prots.filter(|p| p.len() >= 20).for_each( |p| println!("{}", p) );
     // prots.for_each( |p| println!("{}", p) );
+    println!("size of base: {}", size_of::<[Base;2]>());
     Ok(())
 }
