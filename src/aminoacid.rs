@@ -30,7 +30,7 @@ pub enum AminoAcid {
     Tyr,
     Val,
     STOP,
-    // START, // redundant with Met; all proteins will being with M in this simple model
+    // START, // redundant with Met; all proteins will begin with M in this simple model
 }
 
 impl<'a> From<&'a AminoAcid> for char {
@@ -71,7 +71,7 @@ pub fn start_codon() -> &'static [Base; 3] {
 pub fn amino_code(codon: (&Base, &Base, &Base)) -> AminoAcid {
     use base::Base::*;
     use self::AminoAcid::*;
-    match codon { // somewhat awkward; may want to match to slice patter for everything below
+    match codon { // somewhat awkward; may want to match to slice pattern for everything below
         (T,T,b) => match b {
             T | C => Phe, A | G => Leu
         },
