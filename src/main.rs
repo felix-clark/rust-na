@@ -25,8 +25,8 @@ use std::io::{
 use std::convert::TryFrom;
 // use std::mem::{size_of, size_of_val}; // only for print statements
 
-// extern crate itertools;
-// use itertools::Itertools;
+extern crate itertools;
+use itertools::Itertools;
 
 // reads the first part of a string and check if it should be ignored
 // the standard fasta comment indicator is '>'
@@ -48,7 +48,7 @@ fn get_base_seqs(f: &File) -> io::Result<Vec<BaseSeq>> {
         if is_comment_line(&lr) {
             if !bs_buff.is_empty() {
                 baseseqs.push(
-                    bs_buff.drain(..).map(Base::from).collect()
+                    bs_buff.drain(..).map_into::<Base>().collect()
                 );
             }
             // println!("comment line: {}", lr);
@@ -63,7 +63,7 @@ fn get_base_seqs(f: &File) -> io::Result<Vec<BaseSeq>> {
     }
     if !bs_buff.is_empty() {
         baseseqs.push(
-            bs_buff.drain(..).map(Base::from).collect()
+            bs_buff.drain(..).map_into::<Base>().collect()
             );
     }
     Ok(baseseqs)
@@ -78,10 +78,11 @@ fn main() -> io::Result<()> {
     let mut baseseqs: Vec<BaseSeq> = Vec::new(); //will change this later; should be streaming too
     if read_stdin {
         it_arg.next(); // skip the "-i"
-        baseseqs = it_arg.map(BaseSeq::try_from).collect::<Result<_,_>>().unwrap_or_else(|err| {
-            eprintln!("Problem parsing string as base sequence: {:?}", err);
-            process::exit(1);
-        });
+        baseseqs = it_arg.map(BaseSeq::try_from).collect::<Result<_,_>>()
+            .unwrap_or_else(|err| {
+                eprintln!("Problem parsing string as base sequence: {:?}", err);
+                process::exit(1);
+            });
     } else {
         let fins: Vec<File> =  it_arg.map(File::open).collect::<Result<_,_>>()?;    
         for mut f in fins {
