@@ -47,11 +47,9 @@ fn get_base_seqs(f: &File) -> io::Result<Vec<BaseSeq>> {
         let lr = line?;
         if is_comment_line(&lr) {
             if !bs_buff.is_empty() {
-                // clone is not efficient, but let's get it working first
-                let bseq = BaseSeq::from(bs_buff.clone());
-                // println!("len/size: {} / {}", bseq.len(), size_of_val::<BaseSeq>(&bseq));
-                baseseqs.push(bseq);
-                bs_buff.clear();
+                baseseqs.push(
+                    bs_buff.drain(..).map(Base::from).collect()
+                );
             }
             // println!("comment line: {}", lr);
         } else {
@@ -64,13 +62,9 @@ fn get_base_seqs(f: &File) -> io::Result<Vec<BaseSeq>> {
         }
     }
     if !bs_buff.is_empty() {
-        // println!("vector len/size: {} / {}", bs_buff.len(), size_of_val::<Vec<Base>>(&bs_buff));
-        // clone is not efficient, but let's get it working first
-        let bseq = BaseSeq::from(bs_buff.clone());
-        // let bseq = BaseSeq::from(&mut bs_buff); // want to enable something like this to drain the data
-        // println!("baseseq len/size: {} / {}", bseq.len(), size_of_val::<BaseSeq>(&bseq));
-        baseseqs.push(bseq);
-        bs_buff.clear();
+        baseseqs.push(
+            bs_buff.drain(..).map(Base::from).collect()
+            );
     }
     Ok(baseseqs)
 }
@@ -96,10 +90,10 @@ fn main() -> io::Result<()> {
     }
     
     let prots = baseseqs.iter().flat_map(|seq| seq.translate());
-    // prots.filter(|p| p.len() >= 20).for_each( |p| println!("{}\n", p) );
-    prots.for_each( |p| println!("{}\n", p) );
+    prots.filter(|p| p.len() >= 20).for_each( |p| println!("{}\n", p) );
+    // prots.for_each( |p| println!("{}\n", p) );
 
-    // this is 2, so obviously 1 byte/base
+    // this prints 2, so obviously 1 byte/base
     // we should be able to pack 4 bases per byte
     // println!("size of base: {}", size_of::<[Base;2]>());
     
