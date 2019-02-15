@@ -23,7 +23,7 @@ use std::io::{
     BufRead,
     BufReader};
 use std::convert::TryFrom;
-use std::mem::{size_of, size_of_val};
+// use std::mem::{size_of, size_of_val}; // only for print statements
 
 // extern crate itertools;
 // use itertools::Itertools;
@@ -49,12 +49,11 @@ fn get_base_seqs(f: &File) -> io::Result<Vec<BaseSeq>> {
             if !bs_buff.is_empty() {
                 // clone is not efficient, but let's get it working first
                 let bseq = BaseSeq::from(bs_buff.clone());
-                println!("len/size: {} / {}", bseq.len(), size_of_val::<BaseSeq>(&bseq));
+                // println!("len/size: {} / {}", bseq.len(), size_of_val::<BaseSeq>(&bseq));
                 baseseqs.push(bseq);
                 bs_buff.clear();
             }
             // println!("comment line: {}", lr);
-            // baseseqs.push(BaseSeq::new());
         } else {
             let bases = lr.bytes().map(Base::try_from).collect::<Result<Vec<_>,_>>()
                 .unwrap_or_else(|err| {
@@ -62,7 +61,6 @@ fn get_base_seqs(f: &File) -> io::Result<Vec<BaseSeq>> {
                     process::exit(1);
                 });
             bs_buff.extend(bases);
-            // println!("{:?}", bs_buff);
         }
     }
     if !bs_buff.is_empty() {
@@ -93,15 +91,17 @@ fn main() -> io::Result<()> {
     } else {
         let fins: Vec<File> =  it_arg.map(File::open).collect::<Result<_,_>>()?;    
         for mut f in fins {
-            // let mut bs = get_base_seqs(&f)?;
-            // baseseqs.append(&mut bs);
             baseseqs.append(&mut get_base_seqs(&f)?);
         }
     }
     
     let prots = baseseqs.iter().flat_map(|seq| seq.translate());
-    prots.filter(|p| p.len() >= 20).for_each( |p| println!("{}", p) );
-    // prots.for_each( |p| println!("{}", p) );
-    println!("size of base: {}", size_of::<[Base;2]>());
+    // prots.filter(|p| p.len() >= 20).for_each( |p| println!("{}\n", p) );
+    prots.for_each( |p| println!("{}\n", p) );
+
+    // this is 2, so obviously 1 byte/base
+    // we should be able to pack 4 bases per byte
+    // println!("size of base: {}", size_of::<[Base;2]>());
+    
     Ok(())
 }
