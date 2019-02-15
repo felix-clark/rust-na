@@ -25,7 +25,7 @@ cargo run -- -i CCATGTCGAAGTCGCTAAGCTCTCGTAGAAAATCGATTAGATAAATATATATATGCTGCTCGAG
 If no flag option is passed, the executable will try to open the file(s) with the given name for reading.
 
 ```
-cargo run gene.data
+cargo run gene.fna
 ```
 
 ## TODO
