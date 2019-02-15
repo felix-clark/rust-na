@@ -28,6 +28,55 @@ use std::mem::{size_of, size_of_val};
 // extern crate itertools;
 // use itertools::Itertools;
 
+// reads the first part of a string and check if it should be ignored
+// the standard fasta comment indicator is '>'
+fn is_comment_line(l: &String) -> bool {
+    let mut peek = l.bytes();
+    match peek.next() {
+        Some(b'>') => true,
+        _ => false,
+    }
+}
+
+fn get_base_seqs(f: &File) -> io::Result<Vec<BaseSeq>> {
+    // let reader = fasta::Reader::new(f);
+    let reader = BufReader::new(f);
+    let mut baseseqs = Vec::<BaseSeq>::new();
+    let mut bs_buff = Vec::<Base>::new();
+    for line in reader.lines() {
+        let lr = line?;
+        if is_comment_line(&lr) {
+            if !bs_buff.is_empty() {
+                // clone is not efficient, but let's get it working first
+                let bseq = BaseSeq::from(bs_buff.clone());
+                println!("len/size: {} / {}", bseq.len(), size_of_val::<BaseSeq>(&bseq));
+                baseseqs.push(bseq);
+                bs_buff.clear();
+            }
+            // println!("comment line: {}", lr);
+            // baseseqs.push(BaseSeq::new());
+        } else {
+            let bases = lr.bytes().map(Base::try_from).collect::<Result<Vec<_>,_>>()
+                .unwrap_or_else(|err| {
+                    eprintln!("problem parsing base: {:?}", err);
+                    process::exit(1);
+                });
+            bs_buff.extend(bases);
+            // println!("{:?}", bs_buff);
+        }
+    }
+    if !bs_buff.is_empty() {
+        // println!("vector len/size: {} / {}", bs_buff.len(), size_of_val::<Vec<Base>>(&bs_buff));
+        // clone is not efficient, but let's get it working first
+        let bseq = BaseSeq::from(bs_buff.clone());
+        // let bseq = BaseSeq::from(&mut bs_buff); // want to enable something like this to drain the data
+        // println!("baseseq len/size: {} / {}", bseq.len(), size_of_val::<BaseSeq>(&bseq));
+        baseseqs.push(bseq);
+        bs_buff.clear();
+    }
+    Ok(baseseqs)
+}
+
 fn main() -> io::Result<()> {
     let mut it_arg = env::args().into_iter().peekable(); // make peekable to check the first argument for the "-f" flag
     it_arg.next(); // ignore the first element, which is the binary name
@@ -42,51 +91,11 @@ fn main() -> io::Result<()> {
             process::exit(1);
         });
     } else {
-        let fins: Vec<File> =  it_arg.map(File::open).collect::<Result<_,_>>()?;
+        let fins: Vec<File> =  it_arg.map(File::open).collect::<Result<_,_>>()?;    
         for mut f in fins {
-            // let reader = fasta::Reader::new(f);
-            let reader = BufReader::new(f);
-            let comment_line = |l: &String| -> bool {
-                let mut peek = l.bytes();
-                match peek.next() {
-                    Some(b'>') => true,
-                    _ => false,
-                }
-            };
-
-            // let mut bs_buff = BaseSeq::new();
-            let mut bs_buff: Vec<Base> = Vec::new();
-            for line in reader.lines() {
-                let lr = line?;
-                if comment_line(&lr) {
-                    if !bs_buff.is_empty() {
-                        // clone is not efficient, but let's get it working first
-                        let bseq = BaseSeq::from(bs_buff.clone());
-                        println!("len/size: {} / {}", bseq.len(), size_of_val::<BaseSeq>(&bseq));
-                        baseseqs.push(bseq);
-                        bs_buff.clear();
-                    }
-                    // println!("comment line: {}", lr);
-                    // baseseqs.push(BaseSeq::new());
-                } else {
-                    let bases = lr.bytes().map(Base::try_from).collect::<Result<Vec<_>,_>>()
-                        .unwrap_or_else(|err| {
-                            eprintln!("problem parsing base: {:?}", err);
-                            process::exit(1);
-                        });
-                    bs_buff.extend(bases);
-                    // println!("{:?}", bs_buff);
-                }
-            }
-            if !bs_buff.is_empty() {
-                // clone is not efficient, but let's get it working first
-                // println!("vector len/size: {} / {}", bs_buff.len(), size_of_val::<Vec<Base>>(&bs_buff));
-                let bseq = BaseSeq::from(bs_buff.clone());
-                // println!("baseseq len/size: {} / {}", bseq.len(), size_of_val::<BaseSeq>(&bseq));
-                baseseqs.push(bseq);
-                bs_buff.clear();
-            }
-
+            // let mut bs = get_base_seqs(&f)?;
+            // baseseqs.append(&mut bs);
+            baseseqs.append(&mut get_base_seqs(&f)?);
         }
     }
     
