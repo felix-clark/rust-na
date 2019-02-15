@@ -43,8 +43,8 @@ impl BaseSeq {
 
     // returns an iterator that will read the sequence and return the proteins
     // modeling the job of mRNA
-    pub fn translate(&self) -> Translator {
-        Translator::new(self.bs.iter())
+    pub fn translate(&self, init_seq: Vec<Base>) -> Translator {
+        Translator::new(self.bs.iter(), init_seq)
     }
 
     pub fn complement(&self) -> BaseSeq {

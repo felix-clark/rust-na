@@ -89,8 +89,11 @@ fn main() -> io::Result<()> {
             baseseqs.append(&mut get_base_seqs(&f)?);
         }
     }
-    
-    let prots = baseseqs.iter().flat_map(|seq| seq.translate());
+    // Shine-Dalgarno variation for E. coli
+    use Base::*;
+    let init_seq = vec![A, G, G, A, G, G, T];
+    // let init_seq = vec![];
+    let prots = baseseqs.iter().flat_map(|seq| seq.translate(init_seq.clone()));
     prots.filter(|p| p.len() >= 20).for_each( |p| println!("{}\n", p) );
     // prots.for_each( |p| println!("{}\n", p) );
 
