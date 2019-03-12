@@ -1,9 +1,9 @@
 // -*- compile-command: "cargo build" -*-
 // iteration over a base sequence and produce an iterator over proteins
 
+use aminoacid::*;
 use base::*;
 use protein::*;
-use aminoacid::*;
 
 use std::iter::Iterator;
 use std::slice::Iter;
@@ -24,7 +24,7 @@ pub struct Translator<'a> {
 
 impl<'a> Translator<'a> {
     pub fn new(it: Iter<'a, Base>, init_seq: Vec<Base>) -> Self {
-        Translator{
+        Translator {
             it: it,
             init_seq: init_seq,
         }
@@ -41,17 +41,17 @@ impl<'a> Iterator for Translator<'a> {
     type Item = Protein;
     fn next(&mut self) -> Option<Protein> {
         // first find an initiation sequence
-        while ! at_sequence(&self.it, &self.init_seq) {
+        while !at_sequence(&self.it, &self.init_seq) {
             let _remaining = self.it.next()?;
         }
         // TODO: the S-D sequence indicates that the start codon should occur in about 6-8 spots.
-        // there should be a counter that looks for the right 
-        while ! at_start_codon(&self.it) {
+        // there should be a counter that looks for the right
+        while !at_start_codon(&self.it) {
             let _remaining = self.it.next()?;
         }
         let prot: Protein = write_protein(&mut self.it);
         // we should consider filtering out small proteins: the smallest known is 20 amino acids long
-        Some(prot)   
+        Some(prot)
     }
 }
 
@@ -71,8 +71,11 @@ fn is_not_stop_codon(aa: &AminoAcid) -> bool {
 }
 
 // might be nice to write this with an iterator over amino acids
-fn write_protein(bs: &mut Iter<Base>) -> Protein
-{
-    let prot: Protein = bs.tuples().map(amino_code).take_while(is_not_stop_codon).collect();
+fn write_protein(bs: &mut Iter<Base>) -> Protein {
+    let prot: Protein = bs
+        .tuples()
+        .map(amino_code)
+        .take_while(is_not_stop_codon)
+        .collect();
     prot
 }

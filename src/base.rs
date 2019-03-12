@@ -1,5 +1,5 @@
-use std::fmt;
 use std::convert::{From, TryFrom};
+use std::fmt;
 
 extern crate rand;
 use self::rand::{
@@ -10,7 +10,7 @@ use self::rand::{
 // mod base { // goes into the base namespace by default, just from the filename.
 
 // using DNA base pairs AGCT. T and C are always interchangeable in the last base of a codon.
-#[derive(Clone,Copy,Debug,PartialEq)]
+#[derive(Clone, Copy, Debug, PartialEq)]
 pub enum Base {
     C,
     T,
@@ -36,7 +36,6 @@ impl TryFrom<char> for Base {
             'G' => Ok(G),
             x => Err(ParseError::InvalidBase(x)),
         }
-
     }
 }
 
@@ -51,7 +50,6 @@ impl TryFrom<u8> for Base {
             b'G' => Ok(G),
             x => Err(ParseError::InvalidBase(x.into())),
         }
-
     }
 }
 
@@ -65,7 +63,7 @@ impl From<Base> for char {
             T => 'T',
             A => 'A',
             G => 'G',
-        }        
+        }
     }
 }
 

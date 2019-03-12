@@ -5,15 +5,13 @@ use translate::*;
 use std::convert::{From, TryFrom};
 use std::fmt;
 // use std::ops::Add;
-use std::slice::{Iter};
-use std::iter::{Iterator,
-                FromIterator,
-};
+use std::iter::{FromIterator, Iterator};
+use std::slice::Iter;
 
 // define a container for lists of bases.
 // derive Debug so we can use assertions in test
 // this struct should be used for storing sequences; BaseStream should be used for reading from a file to process.
-#[derive(Clone,Default,Debug,PartialEq)]
+#[derive(Clone, Default, Debug, PartialEq)]
 pub struct BaseSeq {
     bs: Vec<Base>,
 }
@@ -21,9 +19,8 @@ pub struct BaseSeq {
 impl BaseSeq {
     // pub fn new(it: I) -> BaseSeq
     // where I: Iterator<Item=String>
-    pub fn new() -> BaseSeq
-    {
-        BaseSeq {bs: Vec::new(),}
+    pub fn new() -> BaseSeq {
+        BaseSeq { bs: Vec::new() }
     }
 
     // allows simple iteration base-by-base
@@ -34,7 +31,7 @@ impl BaseSeq {
     pub fn push(&mut self, b: Base) {
         self.bs.push(b);
     }
-    
+
     // moves all elements of other into self, leaving other empty
     pub fn append(&mut self, other: &mut BaseSeq) {
         // uses the built-in Vec::append(), which should hopefully pre-allocate for the length of other.bs
@@ -51,7 +48,7 @@ impl BaseSeq {
         self.iter().map(|b| complement(*b)).collect()
     }
     pub fn strength(&self) -> i32 {
-        self.iter().fold(0, |x,b| x + strength(*b))
+        self.iter().fold(0, |x, b| x + strength(*b))
     }
     pub fn len(&self) -> usize {
         self.bs.len()
@@ -68,19 +65,20 @@ impl BaseSeq {
 
 impl From<Vec<Base>> for BaseSeq {
     fn from(bs: Vec<Base>) -> BaseSeq {
-        BaseSeq{bs}
+        BaseSeq { bs }
     }
 }
 
 // the reference needs lifetime annotation
 impl<'a> TryFrom<&'a str> for BaseSeq {
     type Error = ParseError; // from base
-    fn try_from(s: &str) -> Result<Self, Self::Error> { // this lifetime specifier doesn't seem necessary
+    fn try_from(s: &str) -> Result<Self, Self::Error> {
+        // this lifetime specifier doesn't seem necessary
         // BaseSeq {bs: s.chars().map(|c| Base::try_from(c).expect("failed to interpret base sequence from string")).collect()}
         // Result implements FromIterator, so we can do this instead:
         // we can use the ? operator but collect() needs this awkward "turbofish" syntax:
-        let tryread = s.chars().map(Base::try_from).collect::<Result<_,_>>()?;
-        Ok(BaseSeq{bs: tryread})
+        let tryread = s.chars().map(Base::try_from).collect::<Result<_, _>>()?;
+        Ok(BaseSeq { bs: tryread })
     }
 }
 
@@ -88,8 +86,8 @@ impl TryFrom<String> for BaseSeq {
     // this implies TryInto
     type Error = ParseError;
     fn try_from(s: String) -> Result<Self, Self::Error> {
-        let tryread = s.chars().map(Base::try_from).collect::<Result<_,_>>()?;
-        Ok(BaseSeq{bs: tryread})
+        let tryread = s.chars().map(Base::try_from).collect::<Result<_, _>>()?;
+        Ok(BaseSeq { bs: tryread })
     }
 }
 
@@ -115,7 +113,8 @@ impl fmt::Display for BaseSeq {
 impl FromIterator<Base> for BaseSeq {
     // fn from_iter<I: IntoIterator<Item=Base>>(iter: I) -> Self {
     fn from_iter<I>(iter: I) -> Self
-        where I: IntoIterator<Item=Base>,
+    where
+        I: IntoIterator<Item = Base>,
     {
         let mut bs = BaseSeq::new();
         for i in iter {
@@ -136,12 +135,12 @@ impl FromIterator<Base> for BaseSeq {
 //         vb.extend(other.bs.iter().cloned());
 //         BaseSeq {
 //             bs: vb,
-//         }        
+//         }
 //     }
 // }
 
 impl Extend<Base> for BaseSeq {
-    fn extend<T: IntoIterator<Item=Base>>(&mut self, iter: T) {
+    fn extend<T: IntoIterator<Item = Base>>(&mut self, iter: T) {
         for elem in iter {
             self.bs.push(elem);
         }

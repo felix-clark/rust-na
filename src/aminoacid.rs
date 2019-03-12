@@ -7,7 +7,7 @@ use std::convert::From;
 /// the exotic ones (like selenocysteine) are not included
 /// because they are not simply mapped from a single codon
 /// (typically one of the STOP codons, but conditionally).
-#[derive(Debug,Clone)]
+#[derive(Debug, Clone)]
 pub enum AminoAcid {
     Ala,
     Arg,
@@ -65,45 +65,54 @@ impl<'a> From<&'a AminoAcid> for char {
 
 pub fn start_codon() -> &'static [Base; 3] {
     use base::Base::*;
-    &[A,T,G]
+    &[A, T, G]
 }
 
 pub fn amino_code(codon: (&Base, &Base, &Base)) -> AminoAcid {
-    use base::Base::*;
     use self::AminoAcid::*;
-    match codon { // somewhat awkward; may want to match to slice pattern for everything below
-        (T,T,b) => match b {
-            T | C => Phe, A | G => Leu
+    use base::Base::*;
+    match codon {
+        // somewhat awkward; may want to match to slice pattern for everything below
+        (T, T, b) => match b {
+            T | C => Phe,
+            A | G => Leu,
         },
-        (C,T,_) => Leu,
-        (A,T,b) => match b {
+        (C, T, _) => Leu,
+        (A, T, b) => match b {
             G => Met, // this one also codes for START
-            _ => Ile
+            _ => Ile,
         },
-        (G,T,_) => Val,
-        (T,C,_) => Ser,
-        (C,C,_) => Pro,
-        (A,C,_) => Thr,
-        (G,C,_) => Ala,
-        (T,A,b) => match b {
-            T | C => Tyr, A | G => STOP
+        (G, T, _) => Val,
+        (T, C, _) => Ser,
+        (C, C, _) => Pro,
+        (A, C, _) => Thr,
+        (G, C, _) => Ala,
+        (T, A, b) => match b {
+            T | C => Tyr,
+            A | G => STOP,
         },
-        (C,A,b) => match b {
-            T | C => His, A | G => Gln
+        (C, A, b) => match b {
+            T | C => His,
+            A | G => Gln,
         },
-        (A,A,b) => match b {
-            T | C => Asn, A | G => Lys
+        (A, A, b) => match b {
+            T | C => Asn,
+            A | G => Lys,
         },
-        (G,A,b) => match b {
-            T | C => Asp, A | G => Glu
+        (G, A, b) => match b {
+            T | C => Asp,
+            A | G => Glu,
         },
-        (T,G,b) => match b {
-            T | C => Cys, A => STOP, G => Trp
+        (T, G, b) => match b {
+            T | C => Cys,
+            A => STOP,
+            G => Trp,
         },
-        (C,G,_) => Arg,
-        (A,G,b) => match b {
-            T | C => Ser, A | G => Arg
+        (C, G, _) => Arg,
+        (A, G, b) => match b {
+            T | C => Ser,
+            A | G => Arg,
         },
-        (G,G,_) => Gly,
+        (G, G, _) => Gly,
     }
 }

@@ -4,14 +4,14 @@ use std::fmt;
 use std::iter::FromIterator;
 
 // a protein is a string of amino acids.
-#[derive(Clone,Debug)]
+#[derive(Clone, Debug)]
 pub struct Protein {
     aas: Vec<AminoAcid>,
 }
 
 impl Protein {
     pub fn new() -> Protein {
-        Protein {aas: Vec::new()}
+        Protein { aas: Vec::new() }
     }
     pub fn push(&mut self, a: AminoAcid) {
         self.aas.push(a);
@@ -29,7 +29,7 @@ impl fmt::Display for Protein {
 }
 
 impl FromIterator<AminoAcid> for Protein {
-    fn from_iter<I: IntoIterator<Item=AminoAcid>>(iter: I) -> Self {
+    fn from_iter<I: IntoIterator<Item = AminoAcid>>(iter: I) -> Self {
         // let aas: Vec<AminoAcid> = iter.collect();
         // Protein{aas}
         // this is a bit verbose and unweidly...
