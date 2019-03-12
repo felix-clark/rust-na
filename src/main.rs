@@ -30,7 +30,7 @@ use itertools::Itertools;
 
 // reads the first part of a string and check if it should be ignored
 // the standard fasta comment indicator is '>'
-fn is_comment_line(l: &String) -> bool {
+fn is_comment_line(l: &str) -> bool {
     let mut peek = l.bytes();
     match peek.next() {
         Some(b'>') => true,
@@ -38,7 +38,7 @@ fn is_comment_line(l: &String) -> bool {
     }
 }
 
-fn get_base_seqs(f: &File) -> io::Result<Vec<BaseSeq>> {
+fn get_base_seqs(f: File) -> io::Result<Vec<BaseSeq>> {
     // let reader = fasta::Reader::new(f);
     let reader = BufReader::new(f);
     let mut baseseqs = Vec::<BaseSeq>::new();
@@ -74,29 +74,33 @@ fn main() -> io::Result<()> {
                    // if the next element is the tag "-i", will attempt to read from stdin.
     let read_stdin = it_arg.peek() == Some(&String::from("-i"));
 
-    let mut baseseqs: Vec<BaseSeq> = Vec::new(); //will change this later; should be streaming too
-    if read_stdin {
+    //will change this later; should be a streaming iterator too
+    let baseseqs: Vec<BaseSeq> = if read_stdin {
         it_arg.next(); // skip the "-i"
-        baseseqs = it_arg
+        it_arg
             .map(BaseSeq::try_from)
             .collect::<Result<_, _>>()
             .unwrap_or_else(|err| {
                 eprintln!("Problem parsing string as base sequence: {:?}", err);
                 process::exit(1);
-            });
+            })
     } else {
         let fins: Vec<File> = it_arg.map(File::open).collect::<Result<_, _>>()?;
-        for mut f in fins {
-            baseseqs.append(&mut get_base_seqs(&f)?);
-        }
-    }
+        fins.into_iter()
+        // this ends up with a vec of vecs, which may not be optimal
+        // but we have to collect a result at each stage
+            .map(get_base_seqs)
+            .collect::<io::Result<Vec<_>>>()?
+            .concat()
+    };
+
     // Shine-Dalgarno variation for E. coli
     use Base::*;
     let init_seq = vec![A, G, G, A, G, G, T];
     // let init_seq = vec![];
     let prots = baseseqs
         .iter()
-        .flat_map(|seq| seq.translate(init_seq.clone()));
+        .flat_map(|seq| seq.translate(init_seq.clone())); // shouldn't need to clone here
     prots
         .filter(|p| p.len() >= 20)
         .for_each(|p| println!("{}\n", p));
