@@ -69,7 +69,7 @@ fn get_base_seqs(f: &File) -> io::Result<Vec<BaseSeq>> {
 }
 
 fn main() -> io::Result<()> {
-    let mut it_arg = env::args().into_iter().peekable(); // make peekable to check the first argument for the "-f" flag
+    let mut it_arg = env::args().peekable(); // make peekable to check the first argument for the "-f" flag
     it_arg.next(); // ignore the first element, which is the binary name
                    // if the next element is the tag "-i", will attempt to read from stdin.
     let read_stdin = it_arg.peek() == Some(&String::from("-i"));
