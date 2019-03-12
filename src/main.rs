@@ -1,4 +1,3 @@
-// -*- compile-command: "cargo build" -*-
 // add this to lib in case we export later, but put it in main so we can use it here.
 // #![feature(exact_chunks)]
 
@@ -87,8 +86,8 @@ fn main() -> io::Result<()> {
     } else {
         let fins: Vec<File> = it_arg.map(File::open).collect::<Result<_, _>>()?;
         fins.into_iter()
-        // this ends up with a vec of vecs, which may not be optimal
-        // but we have to collect a result at each stage
+            // this ends up with a vec of vecs, which may not be optimal
+            // but we have to collect a result at each stage
             .map(get_base_seqs)
             .collect::<io::Result<Vec<_>>>()?
             .concat()
