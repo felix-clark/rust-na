@@ -21,6 +21,11 @@ impl Protein {
     }
 }
 
+// clippy recommends implementing Default
+impl Default for Protein {
+    fn default() -> Self { Self::new() }
+}
+
 // define the short-format output (debug will print 3-letter indicaters)
 impl fmt::Display for Protein {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {

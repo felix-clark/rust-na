@@ -25,8 +25,8 @@ pub struct Translator<'a> {
 impl<'a> Translator<'a> {
     pub fn new(it: Iter<'a, Base>, init_seq: Vec<Base>) -> Self {
         Translator {
-            it: it,
-            init_seq: init_seq,
+            it,
+            init_seq,
         }
     }
 }
