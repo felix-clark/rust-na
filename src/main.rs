@@ -1,6 +1,5 @@
 // -*- compile-command: "cargo build" -*-
 // add this to lib in case we export later, but put it in main so we can use it here.
-#![feature(try_from)]
 // #![feature(exact_chunks)]
 
 mod aminoacid;
